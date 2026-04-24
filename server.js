@@ -75,8 +75,7 @@ app.get('/api/staff', async (req, res) => {
         if (error) throw error;
         res.json(data);
     } catch (err) {
-        console.error(err);
-        res.status(500).send("Database fetch error");
+        res.status(500).send("Database error");
     }
 });
 
@@ -84,15 +83,28 @@ app.get('/api/staff', async (req, res) => {
 app.post('/api/staff', async (req, res) => {
     const { username, passwordHash } = req.body;
     try {
+        // PGSQL automatically makes column names lowercase, so we use passwordhash
         const { error } = await supabase
             .from('staff_accounts')
-            .insert([{ username: username, passwordHash: passwordHash }]);
-            
+            .insert([{ username: username, passwordhash: passwordHash }]);
         if (error) throw error;
         res.json({ success: true });
     } catch (err) {
-        console.error("Error creating staff:", err);
-        res.status(500).send("Error saving to database");
+        res.status(500).send("Database error");
+    }
+});
+
+/* DELETE STAFF ACCOUNT */
+app.delete('/api/staff/:username', async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('staff_accounts')
+            .delete()
+            .eq('username', req.params.username);
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).send("Database error");
     }
 });
 
