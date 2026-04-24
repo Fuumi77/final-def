@@ -1815,9 +1815,11 @@
                 return renderDashboard();
             }
 
-            // 1. Check cloud database (WITH CACHE-BUSTING)
+            // 1. Initial check: Ensure we pierce Vercel's cache
             try {
-                const response = await fetch('/api/staff?t=' + Date.now(), { cache: 'no-store' });
+                const response = await fetch('/api/staff?nocache=' + new Date().getTime(), { 
+                    headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+                });
                 const users = await response.json();
                 
                 if (!users || users.length === 0) {
@@ -1826,32 +1828,48 @@
                     return;
                 }
             } catch(e) {
-                console.error("Could not fetch staff from DB");
+                console.error("Database connection warning: ", e);
             }
 
-            // 2. Admin login check against Cloud DB
+            // 2. Admin login check with strict Cloud verification
             document.getElementById('admin-login-btn').addEventListener('click', async () => {
+                const btn = document.getElementById('admin-login-btn');
+                
                 try {
                     const username = (document.getElementById('admin-username').value || '').trim();
                     const password = document.getElementById('admin-password').value || '';
+                    
                     authMsg2.textContent = '';
                     authMsg2.style.color = '#ef4444';
 
                     if (!username) { authMsg2.textContent = 'Please enter your username.'; return; }
                     if (!password) { authMsg2.textContent = 'Please enter your password.'; return; }
 
-                    const btn = document.getElementById('admin-login-btn');
                     btn.textContent = "Authenticating...";
+                    btn.disabled = true;
 
-                    // Fetch live accounts from Supabase via server (WITH CACHE-BUSTING)
-                    const res = await fetch('/api/staff?t=' + Date.now(), { cache: 'no-store' });
+                    // STRICT CACHE BYPASS: Forces Vercel to pull fresh data from Supabase
+                    const res = await fetch('/api/staff?nocache=' + new Date().getTime(), { 
+                        method: 'GET',
+                        headers: { 
+                            'Cache-Control': 'no-cache, no-store, must-revalidate',
+                            'Pragma': 'no-cache',
+                            'Expires': '0'
+                        }
+                    });
+                    
+                    if (!res.ok) throw new Error("Server connection failed (Code: " + res.status + ")");
+                    
                     const usersNow = await res.json();
                     
+                    if (!Array.isArray(usersNow)) throw new Error("Database returned invalid data.");
+
                     // Case-insensitive check
                     const user = usersNow.find(u => (u.username || '').toLowerCase() === username.toLowerCase());
                     if (!user) { 
-                        authMsg2.textContent = 'Account not found. Ask Super Admin to create it.'; 
+                        authMsg2.textContent = `Account '${username}' not found. Ask Super Admin to create it.`; 
                         btn.textContent = "Sign In";
+                        btn.disabled = false;
                         return; 
                     }
 
@@ -1860,16 +1878,20 @@
                     const dbHash = user.passwordHash || user.passwordhash;
                     
                     if (dbHash !== passwordHash) { 
-                        authMsg2.textContent = 'Wrong password. Please try again.'; 
+                        authMsg2.textContent = 'Incorrect password. Please try again.'; 
                         btn.textContent = "Sign In";
+                        btn.disabled = false;
                         return; 
                     }
 
+                    // Success! Load Dashboard
                     setAdminSession(user.username);
                     renderDashboard();
+                    
                 } catch (err) {
-                    authMsg2.textContent = 'CRITICAL LOGIN ERROR: ' + err.message;
-                    document.getElementById('admin-login-btn').textContent = "Sign In";
+                    authMsg2.textContent = 'SYSTEM ERROR: ' + err.message;
+                    btn.textContent = "Sign In";
+                    btn.disabled = false;
                 }
             });
 
