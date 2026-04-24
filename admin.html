@@ -1815,9 +1815,9 @@
                 return renderDashboard();
             }
 
-            // 1. Check cloud database to see if ANY staff accounts exist
+            // 1. Check cloud database (WITH CACHE-BUSTING)
             try {
-                const response = await fetch('/api/staff');
+                const response = await fetch('/api/staff?t=' + Date.now(), { cache: 'no-store' });
                 const users = await response.json();
                 
                 if (!users || users.length === 0) {
@@ -1843,11 +1843,12 @@
                     const btn = document.getElementById('admin-login-btn');
                     btn.textContent = "Authenticating...";
 
-                    // Fetch live accounts from Supabase via server
-                    const res = await fetch('/api/staff');
+                    // Fetch live accounts from Supabase via server (WITH CACHE-BUSTING)
+                    const res = await fetch('/api/staff?t=' + Date.now(), { cache: 'no-store' });
                     const usersNow = await res.json();
                     
-                    const user = usersNow.find(u => u.username === username);
+                    // Case-insensitive check
+                    const user = usersNow.find(u => (u.username || '').toLowerCase() === username.toLowerCase());
                     if (!user) { 
                         authMsg2.textContent = 'Account not found. Ask Super Admin to create it.'; 
                         btn.textContent = "Sign In";
@@ -1864,7 +1865,7 @@
                         return; 
                     }
 
-                    setAdminSession(username);
+                    setAdminSession(user.username);
                     renderDashboard();
                 } catch (err) {
                     authMsg2.textContent = 'CRITICAL LOGIN ERROR: ' + err.message;
