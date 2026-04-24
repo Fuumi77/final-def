@@ -1800,17 +1800,14 @@
             });
         }
 
-        function initAuth() {
+        async function initAuth() {
             const authSection = document.getElementById('auth-section');
             const dashboardSection = document.getElementById('dashboard-section');
             const noAdminUsers = document.getElementById('no-admin-users');
             const adminLoginPanel = document.getElementById('admin-login');
-            const authMsg = document.getElementById('auth-message');
             const authMsg2 = document.getElementById('auth-message-2');
 
-            const users = getUsers();
             const sessionUser = sessionStorage.getItem('adminLoggedInUser');
-
             const logoutBtn = document.getElementById('logout-admin-btn');
             logoutBtn.onclick = logoutAdmin;
 
@@ -1818,7 +1815,21 @@
                 return renderDashboard();
             }
 
-            // Admin login (Attach unconditionally)
+            // Check cloud database for existing staff accounts
+            try {
+                const response = await fetch('/api/staff');
+                const users = await response.json();
+                
+                if (users.length === 0) {
+                    noAdminUsers.classList.remove('hidden');
+                    adminLoginPanel.classList.add('hidden');
+                    return;
+                }
+            } catch(e) {
+                console.error("Could not fetch staff from DB");
+            }
+
+            // Admin login check
             document.getElementById('admin-login-btn').addEventListener('click', async () => {
                 try {
                     const username = (document.getElementById('admin-username').value || '').trim();
@@ -1829,24 +1840,20 @@
                     if (!username) { authMsg2.textContent = 'Please enter your username.'; return; }
                     if (!password) { authMsg2.textContent = 'Please enter your password.'; return; }
 
-                    const usersNow = getUsers();
+                    // Fetch live accounts from Supabase
+                    const res = await fetch('/api/staff');
+                    const usersNow = await res.json();
+                    
                     const user = usersNow.find(u => u.username === username);
-                    if (!user) { authMsg2.textContent = 'Account not found. Ensure you created this staff account in the Super Admin dashboard first.'; return; }
+                    if (!user) { authMsg2.textContent = 'Account not found. Ask Super Admin to create it.'; return; }
 
                     const passwordHash = await sha256Hex(password);
-                    const isLegacyMatch = !!(user.password && user.password === password);
-                    const isHashMatch = !!(user.passwordHash && user.passwordHash === passwordHash);
+                    // Supabase automatically lowercases column names
+                    const dbHash = user.passwordHash || user.passwordhash;
                     
-                    if (!isLegacyMatch && !isHashMatch) { 
+                    if (dbHash !== passwordHash) { 
                         authMsg2.textContent = 'Wrong password. Please try again.'; 
                         return; 
-                    }
-
-                    // Auto-migrate legacy user to hashed password to upgrade security on the fly
-                    if (isLegacyMatch && !user.passwordHash) {
-                        user.passwordHash = passwordHash;
-                        delete user.password;
-                        localStorage.setItem('adminUsers', JSON.stringify(usersNow));
                     }
 
                     setAdminSession(username);
@@ -1864,13 +1871,6 @@
             };
             document.getElementById('admin-username').addEventListener('keypress', handleEnter);
             document.getElementById('admin-password').addEventListener('keypress', handleEnter);
-
-            if (!users.length) {
-                noAdminUsers.classList.remove('hidden');
-                adminLoginPanel.classList.add('hidden');
-                return;
-            }
-
         }
 
         initAuth();
