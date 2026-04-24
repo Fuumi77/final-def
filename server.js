@@ -68,6 +68,34 @@ app.post('/signup', async (req, res) => {
     }
 });
 
+/* GET STAFF ACCOUNTS */
+app.get('/api/staff', async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('staff_accounts').select('*');
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Database fetch error");
+    }
+});
+
+/* CREATE STAFF ACCOUNT */
+app.post('/api/staff', async (req, res) => {
+    const { username, passwordHash } = req.body;
+    try {
+        const { error } = await supabase
+            .from('staff_accounts')
+            .insert([{ username: username, passwordHash: passwordHash }]);
+            
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error creating staff:", err);
+        res.status(500).send("Error saving to database");
+    }
+});
+
 /* RESERVATIONS */
 app.get('/reservations', async (req, res) => {
     try {
