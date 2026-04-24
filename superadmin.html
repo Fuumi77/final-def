@@ -794,68 +794,59 @@
             summaryLine.textContent = `Showing ${historyTotal.length} of ${historyTotal.length} global records.`;
             searchInput.addEventListener('input', applySearch);
 
-            // Staff admin management
-            const staffTbody = document.getElementById('staff-list-tbody');
+            // 1. Fetch and Render Staff from Cloud
+            async function renderStaffManagement(isPolling = false) {
+                const staffTbody = document.getElementById('staff-list-tbody');
+                if (!staffTbody) return;
+                try {
+                    const response = await fetch('/api/staff');
+                    const users = await response.json();
+                    
+                    const onlineAdmins = safeJsonParse(localStorage.getItem('onlineAdmins'), {});
+                    const now = Date.now();
 
-            function renderStaffManagement(isPolling = false) {
-                const users = getAdminUsers();
-                const onlineAdmins = safeJsonParse(localStorage.getItem('onlineAdmins'), {});
-                const now = Date.now();
+                    staffTbody.innerHTML = '';
+                    if (users.length === 0) {
+                        staffTbody.innerHTML = '<tr><td colspan="2" class="muted" style="text-align: center;">No staff accounts registered.</td></tr>';
+                        return;
+                    }
+                    users.forEach((u) => {
+                        const isOnline = onlineAdmins[u.username] && (now - onlineAdmins[u.username] < 15000);
+                        const statusBadge = isOnline
+                            ? `<span style="background:#dcfce7; color:#16a34a; font-size:11px; padding:2px 8px; border-radius:12px; margin-left:8px; font-weight:bold;">🟢 Online</span>`
+                            : `<span style="background:#f1f5f9; color:#94a3b8; font-size:11px; padding:2px 8px; border-radius:12px; margin-left:8px; font-weight:bold;">⚪ Offline</span>`;
 
-                staffTbody.innerHTML = '';
-                if (users.length === 0) {
-                    staffTbody.innerHTML = '<tr><td colspan="2" class="muted" style="text-align: center;">No staff accounts registered.</td></tr>';
-                    return;
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong style="color: #0f172a;">${u.username}</strong> ${statusBadge}</td>
+                            <td><button type="button" class="danger" style="padding: 6px 12px; font-size: 12px; border-radius: 4px;" onclick="window.deleteStaffUser('${u.username}')">Delete</button></td>
+                        `;
+                        staffTbody.appendChild(tr);
+                    });
+
+                    const statCount = document.getElementById('stat-admins');
+                    if (statCount) statCount.textContent = users.length;
+                } catch(e) {
+                    staffTbody.innerHTML = '<tr><td colspan="2" class="danger" style="text-align: center;">Database connection error.</td></tr>';
                 }
-                users.forEach((u, i) => {
-                    const isOnline = onlineAdmins[u.username] && (now - onlineAdmins[u.username] < 15000);
-                    const statusBadge = isOnline
-                        ? `<span style="background:#dcfce7; color:#16a34a; font-size:11px; padding:2px 8px; border-radius:12px; margin-left:8px; font-weight:bold;">🟢 Online</span>`
-                        : `<span style="background:#f1f5f9; color:#94a3b8; font-size:11px; padding:2px 8px; border-radius:12px; margin-left:8px; font-weight:bold;">⚪ Offline</span>`;
-
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong style="color: #0f172a;">${u.username}</strong> ${statusBadge}</td>
-                        <td><button type="button" class="danger" style="padding: 6px 12px; font-size: 12px; border-radius: 4px;" onclick="window.deleteStaffUser(${i})">Delete</button></td>
-                    `;
-                    staffTbody.appendChild(tr);
-                });
             }
 
-            window.deleteStaffUser = async function (index) {
-                const users = getAdminUsers();
-                const targetUser = users[index];
-
+            // 2. Delete Staff from Cloud
+            window.deleteStaffUser = async function (username) {
                 const pin = await superModal({
                     title: '🔒 Security Authorization',
-                    message: `Enter Pincode to DELETE staff account: <b>${targetUser.username}</b>`,
-                    showInput: true,
-                    placeholder: 'Enter 6-digit pin',
-                    confirmText: 'Delete Account'
+                    message: `Enter Pincode to DELETE staff account: <b>${username}</b>`,
+                    showInput: true, placeholder: 'Enter 6-digit pin', confirmText: 'Delete Account'
                 });
 
                 if (pin === "789456") {
-                    users.splice(index, 1);
-                    localStorage.setItem('adminUsers', JSON.stringify(users));
-                    // Update stats
-                    const statCount = document.getElementById('stat-admins');
-                    if (statCount) statCount.textContent = users.length;
-
-                    await superModal({
-                        title: '✅ Success',
-                        message: `Staff account <b>${targetUser.username}</b> has been permanently removed.`,
-                        confirmText: 'OK'
-                    });
+                    await fetch('/api/staff/' + username, { method: 'DELETE' });
+                    await superModal({ title: '✅ Success', message: `Staff account <b>${username}</b> removed from database.` });
                     renderStaffManagement();
-                } else if (pin !== null) {
-                    await superModal({
-                        title: '❌ Access Denied',
-                        message: 'Invalid Pincode. Operation cancelled.',
-                        confirmText: 'Back to Safety'
-                    });
                 }
             };
 
+            // 3. Save New Staff to Cloud
             document.getElementById('create-staff-btn').onclick = async () => {
                 const uInput = document.getElementById('new-staff-username');
                 const pInput = document.getElementById('new-staff-password');
@@ -863,54 +854,34 @@
                 const password = pInput.value;
 
                 if (!username || password.length < 4) {
-                    return await superModal({
-                        title: '⚠️ Input Required',
-                        message: 'Please provide a username and a password (min. 4 characters).',
-                        confirmText: 'Got it'
-                    });
+                    return await superModal({ title: '⚠️ Input Required', message: 'Please provide a username and a password (min. 4 characters).' });
                 }
 
-                const users = getAdminUsers();
-                if (users.some(u => u.username === username)) {
-                    return await superModal({
-                        title: '⚠️ Duplicate Username',
-                        message: `The username <b>${username}</b> is already taken.`,
-                        confirmText: 'Try Another'
-                    });
-                }
-
-                // Show Pincode Modal
                 const pin = await superModal({
                     title: '🔒 Security Authorization',
-                    message: `Enter Pincode to authorize the creation of a new staff account: <b>${username}</b>`,
-                    showInput: true,
-                    placeholder: 'Enter 6-digit pin',
-                    confirmText: 'Authorize Creation'
+                    message: `Enter Pincode to authorize account creation: <b>${username}</b>`,
+                    showInput: true, placeholder: 'Enter 6-digit pin', confirmText: 'Authorize'
                 });
 
                 if (pin === "789456") {
                     const passwordHash = await sha256Hex(password);
-                    users.push({ username, passwordHash });
-                    localStorage.setItem('adminUsers', JSON.stringify(users));
-
-                    uInput.value = '';
-                    pInput.value = '';
-
-                    const statCount = document.getElementById('stat-admins');
-                    if (statCount) statCount.textContent = users.length;
-
-                    await superModal({
-                        title: '✅ Success',
-                        message: `Staff account for <b>${username}</b> has been created successfully!`,
-                        confirmText: 'Done'
-                    });
-                    renderStaffManagement();
-                } else if (pin !== null) {
-                    await superModal({
-                        title: '❌ Denied',
-                        message: 'Incorrect pincode. Staff creation aborted.',
-                        confirmText: 'Close'
-                    });
+                    try {
+                        const res = await fetch('/api/staff', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username, passwordHash })
+                        });
+                        
+                        if(res.ok) {
+                            uInput.value = ''; pInput.value = '';
+                            await superModal({ title: '✅ Success', message: `Account <b>${username}</b> saved to Cloud Database!` });
+                            renderStaffManagement();
+                        } else {
+                            await superModal({ title: '❌ Error', message: 'Failed to create account. Username might exist.' });
+                        }
+                    } catch(e) {
+                        await superModal({ title: '❌ Error', message: 'Could not connect to server.' });
+                    }
                 }
             };
 
