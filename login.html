@@ -118,7 +118,7 @@
             document.getElementById(formId).classList.add('active');
         }
 
-        // Handle Login Submission — calls real SQL Server backend
+        // Handle Login Submission — cloud backend
         async function handleLogin(e) {
             e.preventDefault();
             const email    = document.getElementById('login-email').value;
@@ -128,7 +128,8 @@
             btn.disabled    = true;
 
             try {
-                const res  = await fetch('http://localhost:3000/login', {
+                // Changed from localhost to the cloud route
+                const res  = await fetch('/login', {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body:    JSON.stringify({ email, password })
@@ -144,7 +145,6 @@
                     btn.disabled    = false;
                 }
             } catch (err) {
-                // Server offline — fallback: derive name from email
                 console.warn('Server offline, using local fallback:', err);
                 const namePart = email.split('@')[0];
                 const name = namePart.charAt(0).toUpperCase() + namePart.slice(1);
@@ -153,7 +153,7 @@
             }
         }
 
-        // Handle Sign Up Submission — calls real SQL Server backend
+        // Handle Sign Up Submission — cloud backend
         async function handleSignUp(e) {
             e.preventDefault();
             const name     = document.getElementById('signup-name').value;
@@ -164,7 +164,8 @@
             btn.disabled    = true;
 
             try {
-                await fetch('http://localhost:3000/signup', {
+                // Changed from localhost to the cloud route
+                await fetch('/signup', {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body:    JSON.stringify({ name, email, password })
@@ -172,7 +173,6 @@
                 superModal({ title: 'Welcome! 🎉', message: 'Account created! Please sign in with your new credentials.' });
                 switchForm('login-form');
             } catch (err) {
-                // Server offline — log in locally
                 console.warn('Server offline, using local fallback:', err);
                 localStorage.setItem('loggedInUserName', name);
                 window.location.href = 'index.html';
