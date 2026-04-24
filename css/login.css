@@ -1,0 +1,263 @@
+        /* Modern Auth Page Specific Styles */
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Re-using the background image style from the home page for brand consistency */
+            background-image: linear-gradient(180deg, rgba(10, 20, 15, 0.75) 0%, rgba(25, 55, 40, 0.95) 100%), url('../images/backgroundsemi.png');
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            color: white;
+        }
+
+        /* Ambient floating particles (imported from global style for the cool effect) */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.15;
+            background-image: radial-gradient(rgba(46, 125, 50, 1) 1px, transparent 1px);
+            background-size: 38px 38px;
+            animation: dotsFloat 20s linear infinite;
+        }
+
+        @keyframes dotsFloat {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(0, -38px, 0); }
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .auth-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08); /* Glassmorphism */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 45px 35px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Glassmorphic input fields */
+        .input-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .input-group input:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #4caf50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Buttons */
+        .btn-auth {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 8px 20px rgba(27, 94, 32, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(27, 94, 32, 0.5);
+            background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+        }
+
+        .btn-auth:active {
+            transform: translateY(0);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .auth-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            margin: 0 0 12px 0;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .auth-header p {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 15px;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .auth-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+        .auth-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .auth-links a:hover {
+            color: #4caf50;
+        }
+
+        /* Forms display logic */
+        form {
+            display: none;
+            animation: formFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        form.active {
+            display: block;
+        }
+
+        @keyframes formFadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .back-home {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            z-index: 20;
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .back-home:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(-5px);
+        }
+
+        /* Logo icon at top */
+        .auth-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(46, 125, 50, 0.2);
+            border: 2px solid rgba(76, 175, 80, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            color: #4caf50;
+            font-size: 28px;
+        }
+
+        /* =========================================
+           RESPONSIVE – Login Page
+           ========================================= */
+        @media (max-width: 480px) {
+            body {
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+                align-items: flex-start;
+                padding: 70px 0 30px;
+            }
+
+            .auth-container {
+                padding: 16px;
+            }
+
+            .auth-card {
+                padding: 30px 20px;
+                border-radius: 18px;
+            }
+
+            .auth-header h2 {
+                font-size: 26px;
+            }
+
+            .back-home {
+                top: 16px;
+                left: 16px;
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .auth-card {
+                padding: 24px 14px;
+            }
+
+            .auth-header h2 {
+                font-size: 22px;
+            }
+
+            .btn-auth {
+                font-size: 14px;
+                padding: 13px;
+            }
+        }

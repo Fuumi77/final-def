@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roland's Steak House</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/design-system.js"></script>
+</head>
+
+<body>
+
+    <header id="main-header" class="transparent">
+        <div class="logo"><img src="images/rolandsLOGO.jpg" alt="Logo"></div>
+        <nav>
+            <ul>
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#location" class="nav-link">Location</a></li>
+                <li><a href="#menu" class="nav-link">Menu</a></li>
+                <li><a href="#reservations" class="nav-link">Reservations</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home">
+        <!-- Background Slideshow -->
+        <div class="hero-slideshow">
+            <div class="hero-slide active" style="background-image: url('images/Untitled_design_2 (1).webp')"></div>
+            <div class="hero-slide" style="background-image: url('images/2.webp')"></div>
+            <div class="hero-slide" style="background-image: url('images/3.webp')"></div>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="reveal hero-content">
+            <h1>Roland's Steak House</h1>
+            <p style="font-size: 20px; margin-bottom: 40px;">Fine Dining Excellence in Gensan</p>
+            <a href="#reservations" class="cta-btn">Reserve Your Table</a>
+            <div class="slide-dots">
+                <span class="slide-dot active"></span>
+                <span class="slide-dot"></span>
+                <span class="slide-dot"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- LIVE PROMOTIONS BANNER -->
+    <div id="live-promotions-container" style="background: #fdfaf5; padding: 60px 20px; display: none;"></div>
+
+    <section id="about">
+        <div class="container">
+            <div class="about-img reveal-left">
+                <img src="images/storyhistory.png" alt="Interior">
+            </div>
+            <div class="about-text reveal-right">
+                <h2>Our Heritage & Story</h2>
+                <p>Founded in 1994, Roland's Steak House began with a simple mission: to bring an authentic, world-class
+                    steakhouse experience to General Santos City. For decades, we have dedicated ourselves to sourcing
+                    only the highest quality meats, aging them to perfection, and grilling them exactly to your liking.
+                </p>
+                <p>Our master chefs combine traditional fire-grilling techniques with modern culinary innovations,
+                    ensuring every bite is a celebration of flavor.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="location">
+        <div class="reveal" style="text-align: center;">
+            <h2 style="font-family: 'Playfair Display'; font-size: 45px; color: #1b5e20; margin-bottom: 10px;">Visit Our
+                Shop</h2>
+            <p style="color: #666; margin-bottom: 30px;">Jose Catolico Sr. Ave., General Santos City (Dadiangas), 9500
+                South Cotabato</p>
+
+            <div class="map-container">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.386053151522!2d125.190588!3d6.123456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32f09fb579f4695d%3A0x3498bc0e23698fc3!2sRoland's%20Steak%20House!5e0!3m2!1sen!2sph!4v1711000000000!5m2!1sen!2sph"
+                    width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <section id="menu">
+        <div class="reveal" style="width: 100%; max-width: 1200px; margin: 0 auto;">
+            <h2 style="font-family: 'Playfair Display'; font-size: 45px; color: #1b5e20; text-align: center;">Signature
+                Menu</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">Tap right to flip, left to go back, or
+                swipe</p>
+
+            <div class="menu-book-container" id="menu-gesture-area">
+                <div class="menu-book" id="menu-book">
+                    <div class="menu-page active">
+                        <img src="images/MenuEntry.png" alt="Roland's menu cover">
+                    </div>
+                    <div class="menu-page">
+                        <img src="images/Menu3.png" alt="Roland's menu page 1">
+                    </div>
+                    <div class="menu-page">
+                        <img src="images/Menu2.png" alt="Roland's menu page 2">
+                    </div>
+                </div>
+            </div>
+
+            <div class="book-indicator" style="text-align: center; margin-top: 15px;">
+                <span id="book-page-indicator" style="font-weight: bold; color: #555;">Page 1 of 3</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="reservations">
+        <div class="form-container reveal">
+            <h2 style="font-family: 'Playfair Display'; font-size: 40px; color: #1b5e20; margin-bottom: 10px;">Book Your
+                Table</h2>
+            <p style="color: #666; margin-bottom: 30px;">Reserve in advance to guarantee your spot.</p>
+
+            <div id="login-area" style="max-width: 500px; margin: 0 auto 20px auto; text-align: left;">
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                    <div style="font-weight: 500; color: #555;">
+                        Login (optional):
+                        <span id="logged-in-user"
+                            style="font-weight: 700; color: #2e7d32; margin-left: 6px;">None</span>
+                    </div>
+                    <div
+                        style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%; margin-top: 10px;">
+                        <button type="button" id="logout-btn" style="max-width: 140px;" disabled>Logout</button>
+                        <button type="button" id="go-login-page-btn" style="max-width: 180px;">Login / Sign up</button>
+                    </div>
+                </div>
+            </div>
+
+            <form id="booking-form" onsubmit="goToNextPage(event)">
+                <input type="text" id="customer-name-input" placeholder="Full Name (Required)" required
+                    oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')">
+
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" value="+63" readonly
+                        style="width: 70px; text-align: center; background: #f1f3f4; font-weight: bold; color: #555; cursor: not-allowed; padding: 15px 0;">
+                    <input type="tel" placeholder="9XX XXX XXXX (Required)" required maxlength="10" style="flex: 1;"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
+
+                <input type="email" placeholder="Email Address (Optional)">
+                <input type="date" id="arrival-date-input" required>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 13px; color: #555; text-align: left; margin-left: 2px;">Arrival Time (10:30
+                        AM - 9:00 PM)</label>
+                    <input type="time" id="arrival-time-input" min="10:30" max="21:00" required>
+                </div>
+                <select required>
+                    <option value="" disabled selected>Number of Guests</option>
+                    <option>1-2 Persons</option>
+                    <option>3-5 Persons</option>
+                    <option>6+ Persons</option>
+                </select>
+                <button type="submit">Next: Choose Your Table</button>
+            </form>
+        </div>
+    </section>
+    
+    <!-- 🎁 FLOATING PROMOTION MODAL -->
+    <div class="promo-modal-overlay" id="promo-modal">
+        <div class="promo-modal-card">
+            <button class="promo-modal-close" onclick="closePromoModal()">✕</button>
+            <img src="" id="promo-modal-img" class="promo-modal-img" alt="Promotion">
+            <div class="promo-modal-content">
+                <h2 class="promo-modal-title" id="promo-modal-title">Special Offer</h2>
+                <p class="promo-modal-desc" id="promo-modal-desc"></p>
+                <div class="promo-modal-actions">
+                    <button class="promo-modal-btn secondary" onclick="closePromoModal()">Maybe Later</button>
+                    <button class="promo-modal-btn primary" onclick="window.location.href='#reservations'; closePromoModal();">Book Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>Roland's Steak House</h3>
+                <p>Serving the finest fire-grilled steaks in General Santos City since 1994. Quality, tradition, and
+                    flavor in every plate.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="#home">Home</a>
+                <a href="#about">About Us</a>
+                <a href="#menu">Menu</a>
+                <a href="#reservations">Reservations</a>
+            </div>
+            <div class="footer-links">
+                <h4>Contact</h4>
+                <a href="#location">Jose Catolico Sr. Ave.</a>
+                <a href="#location">General Santos City</a>
+                <a href="#location">9500 South Cotabato</a>
+                <a>Tel: (083) 123-4567</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2024 Roland's Steak House. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const header = document.getElementById('main-header');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const scrollPos = window.scrollY;
+
+            if (scrollPos > 50) header.classList.remove('transparent');
+            else header.classList.add('transparent');
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollPos >= (sectionTop - 250)) current = section.getAttribute('id');
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) link.classList.add('active');
+            });
+
+            // Fade on scroll
+            const heroContent = document.querySelector('.hero-content');
+            if (heroContent) {
+                const heroH = document.getElementById('home')?.offsetHeight || window.innerHeight;
+                const progress = Math.min(scrollPos / (heroH * 0.65), 1);
+                heroContent.style.opacity = 1 - progress;
+                heroContent.style.transform = `translateY(${progress * 70}px)`;
+            }
+        });
+
+
+        const observerOptions = { threshold: 0.15 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
+
+        function goToNextPage(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('customer-name-input');
+            const arrivalDateInput = document.getElementById('arrival-date-input');
+            const arrivalTimeInput = document.getElementById('arrival-time-input');
+
+            // Enforce time bounds manually for older browsers
+            if (arrivalTimeInput && arrivalTimeInput.value) {
+                if (arrivalTimeInput.value < "10:30" || arrivalTimeInput.value > "21:00") {
+                    superModal({ title: 'Invalid Time 🕒', message: 'Please select an arrival time between 10:30 AM and 9:00 PM.' });
+                    return;
+                }
+            }
+
+            localStorage.setItem('customerName', (nameInput?.value || '').trim());
+            localStorage.setItem('arrivalDate', arrivalDateInput?.value || '');
+            localStorage.setItem('arrivalTime', arrivalTimeInput?.value || '');
+
+            window.location.href = "seat-selection.html";
+        }
+
+        (function initLocalLogin() {
+            const storedName = localStorage.getItem('loggedInUserName');
+            const nameInput = document.getElementById('customer-name-input');
+            const loggedInLabel = document.getElementById('logged-in-user');
+            const logoutBtn = document.getElementById('logout-btn');
+            const goLoginPageBtn = document.getElementById('go-login-page-btn');
+
+            if (!nameInput || !loggedInLabel || !logoutBtn || !goLoginPageBtn) return;
+
+            const applyLoginState = (value) => {
+                const clean = (value || '').trim();
+                if (clean) {
+                    nameInput.value = clean;
+                    loggedInLabel.textContent = clean;
+                    logoutBtn.disabled = false;
+                    goLoginPageBtn.disabled = true;
+                } else {
+                    loggedInLabel.textContent = 'None';
+                    if (storedName && nameInput.value === storedName) nameInput.value = '';
+                    logoutBtn.disabled = true;
+                    goLoginPageBtn.disabled = false;
+                }
+            };
+
+            applyLoginState(storedName);
+
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('loggedInUserName');
+                applyLoginState('');
+            });
+
+            goLoginPageBtn.addEventListener('click', () => {
+                window.location.href = "login.html";
+            });
+        })();
+
+        (function initMenuGestures() {
+            const book = document.getElementById('menu-book');
+            const pages = Array.from(book.querySelectorAll('.menu-page'));
+            const indicator = document.getElementById('book-page-indicator');
+            const gestureArea = document.getElementById('menu-gesture-area');
+
+            if (!pages.length || !indicator || !gestureArea) return;
+
+            let current = 0;
+            const total = pages.length;
+
+            const updatePages = () => {
+                pages.forEach((p, index) => {
+                    p.style.transform = ''; // Clear inline styles
+                    p.style.opacity = '';
+                    p.classList.remove('active', 'before', 'next', 'after', 'dragging');
+
+                    if (index === current) {
+                        p.classList.add('active');
+                    } else if (index === current + 1) {
+                        p.classList.add('next');
+                    } else if (index < current) {
+                        p.classList.add('before');
+                    } else {
+                        p.classList.add('after');
+                    }
+                });
+                indicator.textContent = `Page ${current + 1} of ${total}`;
+            };
+
+            let isDragging = false;
+            let startX = 0;
+            let draggingPage = null;
+            let dragDirection = 0;
+            let bookWidth = 0;
+
+            const onPointerDown = (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                bookWidth = book.getBoundingClientRect().width;
+                gestureArea.setPointerCapture(e.pointerId);
+                draggingPage = null;
+                dragDirection = 0;
+            };
+
+            const onPointerMove = (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - startX;
+
+                if (!draggingPage && Math.abs(deltaX) > 5) {
+                    dragDirection = deltaX < 0 ? -1 : 1;
+                    if (dragDirection === -1 && current < total - 1) {
+                        draggingPage = pages[current];
+                    } else if (dragDirection === 1 && current > 0) {
+                        draggingPage = pages[current - 1];
+                        // Bring the previous page above the current stack to flip it back
+                        draggingPage.classList.remove('before');
+                        draggingPage.classList.add('active');
+                        draggingPage.style.opacity = '1';
+                    }
+                    if (draggingPage) draggingPage.classList.add('dragging');
+                }
+
+                if (draggingPage) {
+                    let progress = deltaX / bookWidth;
+                    if (dragDirection === -1) {
+                        progress = Math.max(-1, Math.min(0, progress));
+                        const angle = progress * 130;
+                        draggingPage.style.transform = `rotateY(${angle}deg)`;
+                    } else {
+                        progress = Math.max(0, Math.min(1, progress));
+                        const angle = -130 + (progress * 130);
+                        draggingPage.style.transform = `rotateY(${angle}deg)`;
+                    }
+                }
+            };
+
+            const onPointerUp = (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+
+                const deltaX = e.clientX - startX;
+
+                if (draggingPage) {
+                    draggingPage.classList.remove('dragging');
+                    draggingPage.style.transform = '';
+                    draggingPage.style.opacity = '';
+
+                    const threshold = bookWidth * 0.2;
+
+                    if (dragDirection === -1 && deltaX < -threshold) {
+                        current++;
+                    } else if (dragDirection === 1 && deltaX > threshold) {
+                        current--;
+                    }
+                    draggingPage = null;
+                    updatePages();
+                } else {
+                    const rect = gestureArea.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    if (clickX > rect.width / 2) {
+                        if (current < total - 1) current++;
+                    } else {
+                        if (current > 0) current--;
+                    }
+                    updatePages();
+                }
+            };
+
+            gestureArea.style.touchAction = 'pan-y'; // Allow vertical scroll, disable horizontal swipe navigation
+            gestureArea.addEventListener('pointerdown', onPointerDown);
+            gestureArea.addEventListener('pointermove', onPointerMove);
+            gestureArea.addEventListener('pointerup', onPointerUp);
+            gestureArea.addEventListener('pointercancel', onPointerUp);
+
+            updatePages();
+        })();
+
+        // Live promotions
+        (function initPromotions() {
+            const container = document.getElementById('live-promotions-container');
+            if (!container) return;
+
+            function renderPromos() {
+                try {
+                    const promos = JSON.parse(localStorage.getItem('activePromos') || '[]');
+                    if (promos.length === 0) {
+                        container.style.display = 'none';
+                        return;
+                    }
+
+                    container.style.display = 'block';
+                    let html = '<h2 style="text-align:center; font-family:\'Playfair Display\',serif; font-size:40px; color:#1b5e20; margin-bottom:40px;">Special Offers & Promotions</h2>';
+                    html += '<div style="max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:30px; padding: 0 15px;">';
+
+                    promos.forEach(p => {
+                        html += `
+                            <div style="background:white; border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08); transition:transform 0.3s;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0)'">
+                                <img src="${p.image}" style="width:100%; height:220px; object-fit:cover;">
+                                <div style="padding:24px;">
+                                    <h3 style="font-family:\'Playfair Display\',serif; color:#1b5e20; font-size:24px; margin:0 0 10px;">${p.title}</h3>
+                                    <p style="color:#555; line-height:1.6; margin:0 0 20px;">${p.desc}</p>
+                                    <div style="font-size:12px; color:#888; font-weight:700;">🏷️ VALID SINCE: ${p.publishedAt}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
+                    // Only update DOM if changed to prevent flashing
+                    if (container.innerHTML !== html) {
+                        container.innerHTML = html;
+                    }
+                } catch (e) {
+                    console.error("Failed to parse promos", e);
+                }
+            }
+
+            renderPromos();
+            setInterval(renderPromos, 5000); // Keep in sync across tabs without refresh
+            
+            // --- FLOATING AD TRIGGER ---
+            window.closePromoModal = function() {
+                document.getElementById('promo-modal').classList.remove('active');
+            };
+
+            const hasSeenAd = sessionStorage.getItem('hasSeenPromoAd');
+            if (!hasSeenAd) {
+                // Show ad after 2 seconds delay for premium feel
+                setTimeout(() => {
+                    const promos = JSON.parse(localStorage.getItem('activePromos') || '[]');
+                    if (promos.length > 0) {
+                        const latest = promos[promos.length - 1]; // Show most recent
+                        document.getElementById('promo-modal-img').src = latest.image;
+                        document.getElementById('promo-modal-title').textContent = latest.title;
+                        document.getElementById('promo-modal-desc').textContent = latest.desc;
+                        document.getElementById('promo-modal').classList.add('active');
+                        sessionStorage.setItem('hasSeenPromoAd', 'true');
+                    }
+                }, 2000);
+            }
+        })();
+
+        // Customer online heartbeat
+        (function initCustomerHeartbeat() {
+            setInterval(() => {
+                const customers = JSON.parse(localStorage.getItem('onlineCustomers') || '{}');
+                let custId = sessionStorage.getItem('customerId');
+                if (!custId) {
+                    custId = 'Cust-' + Math.floor(Math.random() * 1000000);
+                    sessionStorage.setItem('customerId', custId);
+                }
+                const name = localStorage.getItem('loggedInUserName') || 'Guest';
+                customers[custId] = { name: name, time: Date.now() };
+
+                for (const key in customers) {
+                    if (Date.now() - customers[key].time > 15000) delete customers[key];
+                }
+                localStorage.setItem('onlineCustomers', JSON.stringify(customers));
+            }, 5000);
+        })();
+
+        // Date limiter
+        (function initDateBounds() {
+            const dateInput = document.getElementById('arrival-date-input');
+            if (dateInput) {
+                const today = new Date();
+
+                // Format YYYY-MM-DD
+                const formatDate = (date) => {
+                    const y = date.getFullYear();
+                    const m = String(date.getMonth() + 1).padStart(2, '0');
+                    const d = String(date.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${d}`;
+                };
+
+                const minDate = formatDate(today);
+
+                // Max date: exactly 1 year from today
+                const maxDateObj = new Date(today);
+                maxDateObj.setFullYear(maxDateObj.getFullYear() + 1);
+                const maxDate = formatDate(maxDateObj);
+
+                dateInput.setAttribute('min', minDate);
+                dateInput.setAttribute('max', maxDate);
+
+                // Stop manual key typing if they try to bypass the picker
+                dateInput.addEventListener('keydown', (e) => {
+                    e.preventDefault();
+                });
+            }
+        })();
+
+        // Hero background slideshow
+        (function initHeroSlideshow() {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.slide-dot');
+            if (!slides.length) return;
+            let current = 0;
+
+            const goTo = (next) => {
+                slides[current].classList.remove('active');
+                slides[current].classList.add('exit');
+                if (dots[current]) dots[current].classList.remove('active');
+
+                const exiting = slides[current];
+                setTimeout(() => exiting.classList.remove('exit'), 900);
+
+                current = next;
+                slides[current].classList.add('active');
+                if (dots[current]) dots[current].classList.add('active');
+            };
+
+            setInterval(() => goTo((current + 1) % slides.length), 5000);
+
+            // Clicking a dot jumps to that slide
+            dots.forEach((dot, i) => dot.addEventListener('click', () => { if (i !== current) goTo(i); }));
+        })();
+
+
+        // Chat logic
+        function toggleChat() {
+            const panel = document.getElementById('chatPanel');
+            panel.classList.toggle('active');
+            if (panel.classList.contains('active')) {
+                loadChatMessages();
+                checkActiveReservation();
+            }
+        }
+
+        function getChatId() {
+            let id = localStorage.getItem('chatSessionId');
+            if (!id) {
+                id = 'session_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('chatSessionId', id);
+            }
+            return id;
+        }
+
+        function checkActiveReservation() {
+            const hist = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+            const cName = localStorage.getItem('customerName');
+            const resInfo = document.getElementById('chatResInfo');
+            if (cName) {
+                const myRes = hist.reverse().find(r => r.customerName === cName);
+                if (myRes) {
+                    let foodText = '';
+                    if (myRes.reservationType === 'standard') {
+                        foodText = 'None (Standard Reservation)';
+                    } else if (myRes.foods && myRes.foods.length > 0) {
+                        foodText = myRes.foods.join(', ');
+                        if (myRes.beefNote) foodText += ` | 🥩 ${myRes.beefNote}`;
+                    } else {
+                        foodText = 'None';
+                    }
+
+                    resInfo.innerHTML = `
+                        <div style="text-align:left; line-height:1.4;">
+                            <div style="font-size:13px; font-weight:700; margin-bottom:2px;">🎫 Reservation ${myRes.reservationNumber}</div>
+                            <div style="font-size:11px; color:#555; margin-bottom:4px;">📅 ${myRes.arrivalDate} &nbsp; ⏰ ${myRes.arrivalTime}</div>
+                            <div style="font-size:11px; font-weight:600; color:#1b5e20;">🍴 Order: <span style="font-weight:500; color:#333;">${foodText}</span></div>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+            resInfo.textContent = 'No active reservation found.';
+        }
+
+        function loadChatMessages() {
+            const sId = getChatId();
+            const allChats = JSON.parse(localStorage.getItem('liveChats') || '{}');
+            const cName = localStorage.getItem('customerName');
+
+            // Bring in any orphaned messages created by the Admin for this customer
+            if (cName) {
+                for (let otherId in allChats) {
+                    if (otherId !== sId) {
+                        const hasCust = allChats[otherId].some(m => m.name === cName || (m.sender === 'staff' && m.text.includes(cName)) || (m.sender === 'customer' && m.name === cName));
+                        if (hasCust) {
+                            // Merge them into our actual session
+                            if (!allChats[sId]) allChats[sId] = [];
+                            allChats[sId] = allChats[sId].concat(allChats[otherId]);
+                            delete allChats[otherId];
+                            localStorage.setItem('liveChats', JSON.stringify(allChats));
+                        }
+                    }
+                }
+            }
+
+            const myChat = allChats[sId] || [];
+            const body = document.getElementById('chatBody');
+
+            body.innerHTML = `<div class="chat-msg staff">
+                Hello! How can we help you today?
+                <div class="chat-msg-time">System</div>
+            </div>`;
+
+            myChat.forEach(m => {
+                const div = document.createElement('div');
+                div.className = `chat-msg ${m.sender === 'staff' ? 'staff' : 'customer'}`;
+                div.innerHTML = `${m.text} <div class="chat-msg-time">${m.time}</div>`;
+                body.appendChild(div);
+            });
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const sId = getChatId();
+            const allChats = JSON.parse(localStorage.getItem('liveChats') || '{}');
+            if (!allChats[sId]) allChats[sId] = [];
+
+            const cName = localStorage.getItem('customerName') || 'Guest';
+
+            const newMsg = {
+                sender: 'customer',
+                name: cName,
+                text: text,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            allChats[sId].push(newMsg);
+            localStorage.setItem('liveChats', JSON.stringify(allChats));
+
+            input.value = '';
+            loadChatMessages();
+        }
+
+        function sendChatPhoto(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const b64 = e.target.result;
+                const txt = `<img src="${b64}" style="max-width:100%; border-radius:8px; margin-top:5px; cursor:pointer;" onclick="window.open('${b64}')">`;
+
+                const sId = getChatId();
+                const allChats = JSON.parse(localStorage.getItem('liveChats') || '{}');
+                if (!allChats[sId]) allChats[sId] = [];
+                const cName = localStorage.getItem('customerName') || 'Guest';
+
+                const newMsg = {
+                    sender: 'customer',
+                    name: cName,
+                    text: txt,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+
+                allChats[sId].push(newMsg);
+                localStorage.setItem('liveChats', JSON.stringify(allChats));
+
+                loadChatMessages();
+                input.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        setInterval(() => {
+            if (document.getElementById('chatPanel').classList.contains('active')) {
+                loadChatMessages();
+            }
+        }, 3000);
+
+        // Payment status polling (Verified/Rejected)
+        setInterval(() => {
+            const hist = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+            const myName = localStorage.getItem('customerName');
+            if (!myName) return;
+
+            let newlyVerified = false;
+            let newlyRejected = false;
+
+            hist.forEach(r => {
+                if (r.customerName === myName) {
+                    if (r.paymentStatus === 'verified' && !r.receiptAcknowledged) {
+                        newlyVerified = true;
+                        r.receiptAcknowledged = true;
+                    } else if (r.paymentStatus === 'rejected' && !r.rejectionAcknowledged) {
+                        newlyRejected = true;
+                        r.rejectionAcknowledged = true;
+                    }
+                }
+            });
+
+            if (newlyVerified || newlyRejected) {
+                localStorage.setItem('reservationHistory', JSON.stringify(hist));
+
+                const overlay = document.createElement('div');
+                overlay.style.cssText = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);";
+
+                if (newlyVerified) {
+                    overlay.innerHTML = `
+                        <div style="background:white; padding:40px; border-radius:24px; text-align:center; max-width:420px; width:90%; position:relative; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                            <div style="font-size:70px; margin-bottom:20px;">✅</div>
+                            <h2 style="font-family:'Playfair Display',serif; color:#1b5e20; margin-bottom:12px; font-size:28px;">Payment Verified!</h2>
+                            <p style="color:#64748b; margin-bottom:30px; line-height:1.6; font-size:16px;">Your payment has been successfully verified! Your receipt is now available in your Live Chat support.</p>
+                            <button onclick="closeStatusPopup(this.parentElement.parentElement, true)" style="background:#1b5e20; color:white; border:none; padding:16px 24px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; font-size:16px; transition:0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">View Receipt in Chat</button>
+                        </div>
+                        <style>@keyframes zoomIn { from { transform: scale(0.9); opacity:0; } to { transform: scale(1); opacity:1; } }</style>
+                    `;
+                } else if (newlyRejected) {
+                    overlay.innerHTML = `
+                        <div style="background:white; padding:40px; border-radius:24px; text-align:center; max-width:420px; width:90%; position:relative; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                            <div style="font-size:70px; margin-bottom:20px;">⚠️</div>
+                            <h2 style="font-family:'Playfair Display',serif; color:#b91c1c; margin-bottom:12px; font-size:28px;">Payment Invalid</h2>
+                            <p style="color:#64748b; margin-bottom:30px; line-height:1.6; font-size:16px;">Sorry, your payment is invalid after checking. Please check your transaction details and re-upload your proof of payment.</p>
+                            <button onclick="closeStatusPopup(this.parentElement.parentElement, false)" style="background:#b91c1c; color:white; border:none; padding:16px 24px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; font-size:16px; transition:0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">I Understand</button>
+                        </div>
+                        <style>@keyframes zoomIn { from { transform: scale(0.9); opacity:0; } to { transform: scale(1); opacity:1; } }</style>
+                    `;
+                }
+
+                document.body.appendChild(overlay);
+
+                window.closeStatusPopup = function (el, openChat) {
+                    el.remove();
+                    if (openChat) {
+                        const panel = document.getElementById('chatPanel');
+                        if (!panel.classList.contains('active')) toggleChat();
+                    }
+                };
+            }
+        }, 3000);
+    </script>
+
+    <!-- CHAT WIDGET -->
+    <div class="chat-widget-container">
+        <div class="chat-panel" id="chatPanel">
+            <div class="chat-header">
+                <h4>Live Support</h4>
+                <button class="chat-close" onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-res-info" id="chatResInfo">Loading reservation...</div>
+            <div class="chat-body" id="chatBody">
+                <div class="chat-msg staff">
+                    Hello! How can we help you today?
+                    <div class="chat-msg-time">System</div>
+                </div>
+            </div>
+            <div class="chat-footer">
+                <label for="chatAttach"
+                    style="cursor:pointer; font-size:20px; color:#1b5e20; display:flex; align-items:center;">📷</label>
+                <input type="file" id="chatAttach" accept="image/*" style="display:none;"
+                    onchange="sendChatPhoto(this)">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..."
+                    onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button class="chat-submit-btn" onclick="sendChatMessage()">➤</button>
+            </div>
+        </div>
+        <button class="chat-bubble-btn" onclick="toggleChat()">💬</button>
+    </div>
+
+</body>
+
+</html>

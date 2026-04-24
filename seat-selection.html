@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Table | Roland's Steak House</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/design-system.js"></script>
+</head>
+<body class="seat-selection-page">
+
+    <!-- ═══ FULLSCREEN VIP PHOTOS (fixed, z-index 10) ═══ -->
+    <div class="vip-bg-slide" id="vip-bg-0" style="background-image:url('images/VIP1.jpg')"></div>
+    <div class="vip-bg-slide" id="vip-bg-1" style="background-image:url('images/VIP2.jpg')"></div>
+    <div class="vip-bg-slide" id="vip-bg-2" style="background-image:url('images/VIP3.jpg')"></div>
+    <div class="vip-bg-slide" id="vip-bg-3" style="background-image:url('images/VIP4.jpg')"></div>
+    <div id="vip-bg-tint"></div>
+
+    <!-- Dots bar (always rendered, shown/hidden by class) -->
+    <div id="vip-dots-bar">
+        <div class="vip-dot" id="vip-dot-0"></div>
+        <div class="vip-dot" id="vip-dot-1"></div>
+        <div class="vip-dot" id="vip-dot-2"></div>
+        <div class="vip-dot" id="vip-dot-3"></div>
+    </div>
+
+    <!-- ═══ HEADER ═══ -->
+    <header id="main-header">
+        <div class="logo"><img src="images/rolandsLOGO.jpg" alt="Logo"></div>
+        <nav>
+            <ul>
+                <li><a href="index.html#home" class="nav-link">Home</a></li>
+                <li><a href="index.html#about" class="nav-link">About</a></li>
+                <li><a href="index.html#menu" class="nav-link">Menu</a></li>
+                <li><a href="index.html#reservations" class="nav-link active">Reservations</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- ═══ MAIN SECTION ═══ -->
+    <section id="seat-selection-section" style="padding-top: 50px;">
+
+        <h1 id="page-heading" style="font-family:'Playfair Display'; font-size:clamp(28px,6vw,48px); margin-bottom:30px; font-weight: 700; color: #1e293b;">
+            Choose Your Reservation
+        </h1>
+
+        <!-- Reservation type tabs -->
+        <div class="reservation-filter">
+            <label><input type="radio" name="res-type" value="standard" checked> <span>Standard</span></label>
+            <label><input type="radio" name="res-type" value="priority"> <span>Priority</span></label>
+            <label><input type="radio" name="res-type" value="vip"> <span>👑 VIP Room</span></label>
+        </div>
+
+        <!-- ── VIP info card (hidden until VIP selected) ── -->
+        <div id="vip-room-section">
+            <div class="vip-card">
+                <div class="vip-crown">👑</div>
+                <h3 class="vip-title">VIP Private Room</h3>
+                <p class="vip-subtitle">Roland's Exclusive Dining Experience</p>
+
+                <div class="vip-pills">
+                    <span class="vip-pill">👥 Up to 20 Guests</span>
+                    <span class="vip-pill">📺 Smart TV Included</span>
+                    <span class="vip-pill">❄️ Air-Conditioned</span>
+                    <span class="vip-pill">🔒 Private &amp; Exclusive</span>
+                </div>
+
+                <div class="vip-price-box">
+                    <p class="vip-price-main">₱500 <span>/hour</span></p>
+                    <p class="vip-price-sub">Minimum 2 hours &bull; Maximum 20 pax</p>
+                    <p class="vip-downpayment">✅ ₱1,000 Down Payment Required to Confirm</p>
+                </div>
+
+                <button class="vip-reserve-btn" id="vip-book-btn">Reserve VIP Room Now</button>
+                <button type="button" onclick="window.location.href='index.html#reservations'" 
+                        style="width: 100%; border: 1px solid #e2e8f0; background: white; color: #64748b; padding: 14px; border-radius: 12px; font-weight: bold; margin-top: 12px; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='#f8fafc'; this.style.color='#ef4444'; this.style.borderColor='#fee2e2'"
+                        onmouseout="this.style.background='white'; this.style.color='#64748b'; this.style.borderColor='#e2e8f0'">
+                    Cancel & Go Back
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Table grid (Standard & Priority) ── -->
+        <div id="table-grid-container">
+            <p id="instruction-text">Please select a table:</p>
+            <div class="floor-plan">
+                <div class="table-seat available" data-id="Table 1"><img src="images/T1.jpg" alt="Table 1" data-label="Table 1"><div class="table-label">Table 1</div></div>
+                <div class="table-seat available" data-id="Table 2"><img src="images/T2.jpg" alt="Table 2" data-label="Table 2"><div class="table-label">Table 2</div></div>
+                <div class="table-seat available" data-id="Table 3"><img src="images/T3.jpg" alt="Table 3" data-label="Table 3"><div class="table-label">Table 3</div></div>
+                <div class="table-seat available" data-id="Table 4"><img src="images/T4.jpg" alt="Table 4" data-label="Table 4"><div class="table-label">Table 4</div></div>
+                <div class="table-seat available" data-id="Table 5"><img src="images/T5.jpg" alt="Table 5" data-label="Table 5"><div class="table-label">Table 5</div></div>
+                <div class="table-seat available" data-id="Table 6"><img src="images/T6.jpg" alt="Table 6" data-label="Table 6"><div class="table-label">Table 6</div></div>
+                <div class="table-seat available" data-id="Table 7"><img src="images/T7.jpg" alt="Table 7" data-label="Table 7"><div class="table-label">Table 7</div></div>
+                <div class="table-seat available" data-id="Table 8"><img src="images/T8.jpg" alt="Table 8" data-label="Table 8"><div class="table-label">Table 8</div></div>
+                <div class="table-seat available" data-id="Table 9"><img src="images/T9.jpg" alt="Table 9" data-label="Table 9"><div class="table-label">Table 9</div></div>
+                <div class="table-seat available" data-id="Table 10"><img src="images/T10.jpg" alt="Table 10" data-label="Table 10"><div class="table-label">Table 10</div></div>
+            </div>
+        </div>
+
+        <!-- ── Checkout panel (Standard & Priority) ── -->
+        <div class="checkout-panel" id="checkout-panel">
+            <p style="font-size:18px; margin-bottom:20px;">
+                Selection: <strong id="selected-seat-display" style="color:#2e7d32;">None</strong>
+            </p>
+            <button id="confirm-final-btn" disabled>Confirm Booking</button>
+            <button type="button" onclick="window.location.href='index.html#reservations'" 
+                    style="width: 100%; border: 1px solid #e2e8f0; background: white; color: #64748b; padding: 14px; border-radius: 12px; font-weight: bold; margin-top: 12px; cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.background='#f8fafc'; this.style.color='#ef4444'; this.style.borderColor='#fee2e2'"
+                    onmouseout="this.style.background='white'; this.style.color='#64748b'; this.style.borderColor='#e2e8f0'">
+                Cancel & Go Back
+            </button>
+        </div>
+
+    </section>
+
+    <!-- ═══ LIGHTBOX ═══ -->
+    <div id="table-lightbox">
+        <span id="lb-close" onclick="closeLightbox()">&times;</span>
+        <img id="lb-img" src="" alt="">
+        <div id="lb-caption"></div>
+    </div>
+
+    <script>
+        // ──────────────────────────────────────────────────────────
+        // LIGHTBOX
+        // ──────────────────────────────────────────────────────────
+        function openLightbox(src, label) {
+            document.getElementById('lb-img').src = src;
+            document.getElementById('lb-caption').textContent = label;
+            document.getElementById('table-lightbox').classList.add('open');
+        }
+        function closeLightbox() {
+            document.getElementById('table-lightbox').classList.remove('open');
+        }
+        document.getElementById('table-lightbox').addEventListener('click', function(e) {
+            if (e.target === this) closeLightbox();
+        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+        document.querySelectorAll('.table-seat img').forEach(img => {
+            img.addEventListener('click', function(e) {
+                e.stopPropagation();
+                openLightbox(this.src, this.getAttribute('data-label'));
+            });
+        });
+
+        // ──────────────────────────────────────────────────────────
+        // VIP FULLSCREEN SLIDESHOW
+        // ──────────────────────────────────────────────────────────
+        const bgSlides  = Array.from(document.querySelectorAll('.vip-bg-slide'));
+        const dotEls    = Array.from(document.querySelectorAll('.vip-dot'));
+        let   slideIdx  = 0;
+        let   slideTimer= null;
+
+        function showSlide(n) {
+            bgSlides[slideIdx].classList.remove('active');
+            dotEls[slideIdx].classList.remove('active');
+            slideIdx = (n + bgSlides.length) % bgSlides.length;
+            bgSlides[slideIdx].classList.add('active');
+            dotEls[slideIdx].classList.add('active');
+        }
+        function startSlideshow() {
+            if (slideTimer) return;
+            showSlide(0);                                   // show first photo immediately
+            slideTimer = setInterval(() => showSlide(slideIdx + 1), 3000);
+        }
+        function stopSlideshow() {
+            clearInterval(slideTimer);
+            slideTimer = null;
+            bgSlides.forEach(s => s.classList.remove('active'));
+            dotEls.forEach(d => d.classList.remove('active'));
+            slideIdx = 0;
+        }
+
+        // ──────────────────────────────────────────────────────────
+        // ENTER / EXIT VIP MODE
+        // ──────────────────────────────────────────────────────────
+        const tableGrid    = document.getElementById('table-grid-container');
+        const checkoutEl   = document.getElementById('checkout-panel');
+        const vipSection   = document.getElementById('vip-room-section');
+        const vipBgTint    = document.getElementById('vip-bg-tint');
+        const vipDotsBar   = document.getElementById('vip-dots-bar');
+        const displaySpan  = document.getElementById('selected-seat-display');
+        const confirmBtn   = document.getElementById('confirm-final-btn');
+
+        let chosenTableId   = null;
+        let reservationType = 'standard';
+
+        function enterVipMode() {
+            document.body.classList.add('vip-mode');
+            // Show BG photos + tint
+            vipBgTint.style.display = 'block';
+            vipDotsBar.classList.add('show');
+            // Slide in BG photos
+            startSlideshow();
+            // Hide table grid & checkout
+            tableGrid.style.display  = 'none';
+            checkoutEl.style.display = 'none';
+            // Show VIP card (inside section — section is now transparent)
+            vipSection.classList.add('show');
+        }
+
+        function exitVipMode() {
+            document.body.classList.remove('vip-mode');
+            vipBgTint.style.display = 'none';
+            vipDotsBar.classList.remove('show');
+            stopSlideshow();
+            vipSection.classList.remove('show');
+            // Restore table grid & checkout
+            tableGrid.style.display  = 'block';
+            checkoutEl.style.display = 'block';
+            // Reset table selection
+            chosenTableId = null;
+            displaySpan.textContent = 'None';
+            confirmBtn.disabled = true;
+            document.querySelectorAll('.table-seat').forEach(t => t.classList.remove('selected'));
+        }
+
+        document.querySelectorAll('input[name="res-type"]').forEach(radio => {
+            radio.addEventListener('change', e => {
+                reservationType = e.target.value;
+                if (reservationType === 'vip') {
+                    enterVipMode();
+                } else {
+                    exitVipMode();
+                }
+            });
+        });
+
+        // VIP booking button
+        document.getElementById('vip-book-btn').addEventListener('click', () => {
+            localStorage.setItem('bookedTable',     'VIP Private Room');
+            localStorage.setItem('reservationType', 'vip');
+            localStorage.setItem('totalBill',       '1000');
+            localStorage.setItem('vipDownPayment',  '1000');
+            window.location.href = 'standard-payment.html';
+        });
+
+        // ──────────────────────────────────────────────────────────
+        // TABLE AVAILABILITY & SELECTION (Standard / Priority)
+        // ──────────────────────────────────────────────────────────
+        const chosenDate = localStorage.getItem('arrivalDate') || '';
+        const chosenTime = localStorage.getItem('arrivalTime') || '';
+        const overrides  = JSON.parse(localStorage.getItem('tableOverrides')     || '{}');
+        const history    = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+
+        document.querySelectorAll('.table-seat').forEach(table => {
+            const tId    = table.getAttribute('data-id');
+            const locked = overrides[tId] === 'unavailable';
+
+            const bookings   = history.filter(r => r.bookedTable === tId && r.arrivalDate === chosenDate);
+            const timeTaken  = bookings.some(r => r.arrivalTime === chosenTime);
+
+            // "Taken HH:MM" tags
+            if (bookings.length > 0) {
+                const row = document.createElement('div');
+                row.style.cssText = 'margin-top:5px;display:flex;flex-wrap:wrap;gap:3px;justify-content:center;';
+                bookings.forEach(b => {
+                    const conflict = b.arrivalTime === chosenTime;
+                    const tag = document.createElement('span');
+                    tag.textContent = `Taken ${b.arrivalTime || 'today'}`;
+                    tag.style.cssText = `display:inline-block;font-size:10px;font-weight:700;
+                        padding:2px 6px;border-radius:20px;white-space:nowrap;
+                        background:${conflict ? '#fee2e2':'#fff3cd'};
+                        color:${conflict ? '#b91c1c':'#92400e'};
+                        border:1px solid ${conflict ? '#fca5a5':'#fde68a'};`;
+                    row.appendChild(tag);
+                });
+                const lbl = table.querySelector('.table-label');
+                if (lbl) lbl.after(row);
+            }
+
+            // Lock unavailable tables
+            if (locked || timeTaken) {
+                table.classList.replace('available', 'unavailable');
+                table.title = timeTaken
+                    ? `Already reserved for ${chosenDate} at ${chosenTime}`
+                    : 'Table unavailable for management reasons';
+            }
+
+            // Click to select
+            table.addEventListener('click', () => {
+                if (table.classList.contains('unavailable')) return;
+                document.querySelectorAll('.table-seat').forEach(t => t.classList.remove('selected'));
+                table.classList.add('selected');
+                chosenTableId = tId;
+                displaySpan.textContent = tId;
+                confirmBtn.disabled = false;
+            });
+        });
+
+        // Confirm booking (Standard / Priority)
+        confirmBtn.addEventListener('click', () => {
+            if (!chosenTableId) return;
+            localStorage.setItem('bookedTable',     chosenTableId);
+            localStorage.setItem('reservationType', reservationType);
+            window.location.href = reservationType === 'priority'
+                ? 'pre-order.html'
+                : 'standard-payment.html';
+        });
+    </script>
+</body>
+</html>

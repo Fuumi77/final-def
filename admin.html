@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Roland's</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/design-system.js"></script>
+</head>
+<body>
+    <header>
+        <div class="brand">Roland's Staff Admin</div>
+        <div class="actions">
+            <div id="admin-status" class="muted"></div>
+            <button class="logout-btn hidden" id="logout-admin-btn" onclick="logoutAdmin()">Logout</button>
+        </div>
+    </header>
+
+    <div id="notification-container"></div>
+
+    <div class="container">
+        <div id="auth-section" class="auth-wrap">
+            <h1 class="auth-title">Admin Access</h1>
+            <div class="auth-card">
+                <div id="no-admin-users" class="hidden" style="text-align: center; padding: 20px;">
+                    <div style="font-size: 40px; margin-bottom: 15px;">🔒</div>
+                    <h2 style="color: #1b5e20; margin-bottom: 10px;">Access Restricted</h2>
+                    <p style="color: #555; line-height: 1.5; font-size: 14px;">No staff admin accounts have been registered yet. Please contact the <strong>Super Admin</strong> to create your staff account.</p>
+                </div>
+
+                <div id="admin-login" class="">
+                    <h2>Sign In</h2>
+                    <div class="half">
+                        <div>
+                            <label for="admin-username">Username</label>
+                            <input id="admin-username" type="text" placeholder="Your admin username">
+                        </div>
+                        <div>
+                            <label for="admin-password">Password</label>
+                            <input id="admin-password" type="password" placeholder="Your admin password">
+                        </div>
+                    </div>
+                    <div class="btnrow">
+                        <button type="button" id="admin-login-btn">Sign In</button>
+                    </div>
+                    <div class="msg" id="auth-message-2"></div>
+                </div>
+            </div>
+
+            <!-- TERMINAL LAUNCH CENTER (Publicly accessible 'outside' the dashboard) -->
+            <div id="launch-center" style="margin-top: 40px; text-align: center; border-top: 1px dashed #cbd5e1; padding-top: 30px;">
+                <h3 style="font-family: 'Playfair Display', serif; color: #1b5e20; font-size: 20px; margin-bottom: 20px;">Terminal Launch Center</h3>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" onclick="window.open('kitchen.html', '_blank')" 
+                        style="background:#3b82f6; border-radius:10px; padding: 12px 20px; display:flex; align-items:center; gap:8px; border:none; color:white; font-weight:700; cursor:pointer;">
+                        👩‍🍳 Launch Cook Area
+                    </button>
+                    <button type="button" onclick="window.open('pos.html', '_blank')" 
+                        style="background:#1b5e20; border-radius:10px; padding: 12px 20px; display:flex; align-items:center; gap:8px; color:white; border:none; cursor:pointer;">
+                        📱 Launch POS Terminal
+                    </button>
+                </div>
+                <p style="margin-top: 15px; font-size: 12px; color: #64748b; font-style: italic;">Note: Terminals run independently for cashier and kitchen staff.</p>
+            </div>
+            <div style="text-align: center; margin-top: 25px;">
+                <a href="superadmin.html" style="color: #2e7d32; font-size: 14px; text-decoration: none; transition: 0.2s; font-weight: 600;" onmouseover="this.style.color='#1b5e20'" onmouseout="this.style.color='#2e7d32'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    Super Admin Access
+                </a>
+            </div>
+        </div>
+
+        <div id="dashboard-section" class="hidden">
+            <div class="admin-tabs">
+                <button class="tab-link active" onclick="switchAdminTab('overview', this)">Dashboard Overview</button>
+                <button class="tab-link" onclick="switchAdminTab('walkin', this)">📋 Manual Reservation</button>
+                <button class="tab-link" onclick="switchAdminTab('floorplan', this)">Floor Plan</button>
+                <button class="tab-link" onclick="switchAdminTab('menu', this)">Live Inventory</button>
+                <button class="tab-link" onclick="switchAdminTab('chat', this)">Live Chat</button>
+                <button class="tab-link" onclick="switchAdminTab('promotions', this)">🎉 Promotions</button>
+                <button class="tab-link" onclick="switchAdminTab('payments', this)">💳 Payments</button>
+            </div>
+
+            <!-- WALK-IN RESERVATION TAB -->
+            <div id="tab-walkin" class="admin-tab-content hidden">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                    <h2 style="margin:0; font-family:'Playfair Display',serif; color:#2e7d32; font-size:26px;">📋 Manual Reservation</h2>
+                    <span class="muted" style="font-weight:700;">Book a table directly for a walk-in or phone customer</span>
+                </div>
+
+                <!-- Success toast -->
+                <div id="walkin-toast" style="display:none; background:#dcfce7; border:1px solid #86efac; border-radius:10px; padding:14px 18px; margin-bottom:20px; color:#166534; font-weight:600; font-size:14px;"></div>
+
+                <div class="card">
+                    <!-- Type Toggle -->
+                    <div style="display:flex; gap:10px; margin-bottom:22px;">
+                        <button type="button" id="walkin-type-priority"
+                            onclick="setWalkinType('priority')"
+                            style="flex:1; padding:12px; border-radius:8px; border:2px solid #1b5e20; background:#1b5e20; color:white; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.2s;">
+                            ⭐ Priority
+                        </button>
+                        <button type="button" id="walkin-type-standard"
+                            onclick="setWalkinType('standard')"
+                            style="flex:1; padding:12px; border-radius:8px; border:2px solid #cbd5e1; background:white; color:#64748b; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.2s;">
+                            🪑 Standard
+                        </button>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Customer Name *</label>
+                            <input type="text" id="walkin-name" placeholder="e.g. Juan Dela Cruz" style="width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Contact Number</label>
+                            <input type="text" id="walkin-contact" placeholder="e.g. 09XX-XXX-XXXX" style="width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Arrival Date *</label>
+                            <input type="date" id="walkin-date" style="width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Arrival Time *</label>
+                            <input type="time" id="walkin-time" style="width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Table *</label>
+                            <select id="walkin-table" style="width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px; background:white;">
+                                <option value="">-- Select Table --</option>
+                                <option>Table 1</option><option>Table 2</option><option>Table 3</option>
+                                <option>Table 4</option><option>Table 5</option><option>Table 6</option>
+                                <option>Table 7</option><option>Table 8</option><option>Table 9</option>
+                                <option>Table 10</option><option>VIP Room</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Number of Guests</label>
+                            <input type="number" id="walkin-guests" placeholder="e.g. 4" min="1" max="20" style="width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                        </div>
+                    </div>
+
+                    <!-- Priority fields -->
+                    <div id="walkin-priority-fields">
+                        <div style="margin-bottom:14px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Food Selection *</label>
+                            <button type="button" onclick="openWalkinFoodPicker()" 
+                                style="width:100%; padding:10px; border-radius:8px; border:1px solid #1b5e20; background:white; color:#1b5e20; font-weight:700; font-size:14px; cursor:pointer; transition:0.2s;">
+                                🍽️ Select Menu Items
+                            </button>
+                            <div id="walkin-order-summary" style="margin-top:8px; padding:10px; border-radius:8px; background:#f9fafb; border:1px dashed #d1d5db; min-height:40px; font-size:13px; color:#4b5563;">
+                                No items selected yet.
+                            </div>
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Payment Amount (₱)</label>
+                            <input type="number" id="walkin-payment" placeholder="e.g. 1500" min="0" style="width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Notes / Special Requests</label>
+                        <textarea id="walkin-notes" placeholder="e.g. Birthday celebration, window seat preferred..." rows="3" style="width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px; font-family:inherit; resize:vertical;"></textarea>
+                    </div>
+
+                    <div id="walkin-error" style="display:none; color:#ef4444; font-size:13px; font-weight:600; margin-bottom:12px;"></div>
+
+                    <button type="button" onclick="submitWalkinReservation()"
+                        style="width:100%; padding:15px; font-size:15px; border-radius:10px; border:none; background:#1b5e20; color:white; font-weight:700; cursor:pointer; transition:all 0.2s;"
+                        onmouseover="this.style.background='#2e7d32'" onmouseout="this.style.background='#1b5e20'">
+                        ✅ Save Reservation
+                    </button>
+                </div>
+
+                <!-- Recent manual log -->
+                <h3 style="margin: 28px 0 14px; color:#1b5e20; font-size:16px; text-transform:uppercase; letter-spacing:.5px;">Recent Manual Reservations</h3>
+                <div id="walkin-recent-list">
+                    <div style="color:#aaa; font-style:italic; text-align:center; padding:20px;">No manual reservations yet.</div>
+                </div>
+            </div>
+
+            <!-- LIVE CHAT TAB -->
+            <div id="tab-chat" class="admin-tab-content hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 style="margin:0; font-family: 'Playfair Display', serif; color: #2e7d32; font-size: 26px;">Live Customer Support</h2>
+                </div>
+                <div class="chat-layout">
+                    <div class="chat-sidebar" id="adminChatList"></div>
+                    <div class="chat-main" id="adminChatMain">
+                        <div class="chat-empty-state">Select a chat on the left to start replying.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROMOTIONS TAB -->
+            <div id="tab-promotions" class="admin-tab-content hidden">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                    <h2 style="margin:0; font-family:'Playfair Display',serif; color:#2e7d32; font-size:26px;">🎉 Promotions & Ads</h2>
+                    <span class="muted" style="font-weight:700;">Promos are shown live on the homepage</span>
+                </div>
+
+                <div class="card" style="margin-bottom:24px;">
+                    <h3 style="margin:0 0 16px; color:#1b5e20; font-size:16px; text-transform:uppercase; letter-spacing:.5px;">Upload New Promotion</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Promo Title</label>
+                            <input type="text" id="promo-title" placeholder="e.g. Weekend Steak Special" style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:13px; color:#555;">Short Description</label>
+                            <input type="text" id="promo-desc" placeholder="e.g. 20% off all steaks this weekend!" style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                        </div>
+                    </div>
+                    <label style="display:block; margin-bottom:8px; font-weight:700; font-size:13px; color:#555;">Promo Image</label>
+                    <div style="border:2px dashed #c8e6c9; border-radius:10px; padding:24px; text-align:center; cursor:pointer; background:#f0fdf4; position:relative; margin-bottom:14px;" onclick="document.getElementById('promo-upload-input').click()">
+                        <div style="font-size:36px;">📷</div>
+                        <div style="font-size:14px; color:#555; margin-top:8px;">Click to upload a promo image</div>
+                        <div style="font-size:12px; color:#aaa; margin-top:4px;">PNG, JPG supported</div>
+                        <input type="file" id="promo-upload-input" accept="image/*" style="display:none;" onchange="previewPromoImage(this)">
+                    </div>
+                    <img id="promo-preview-img" src="" style="display:none; max-height:180px; border-radius:8px; margin-bottom:14px; border:1px solid #e2e8f0;">
+                    <button type="button" onclick="addPromo()" style="width:100%; padding:13px; font-size:15px;">✅ Publish Promotion</button>
+                </div>
+
+                <h3 style="margin:0 0 14px; color:#1b5e20; font-size:16px; text-transform:uppercase; letter-spacing:.5px;">Active Promotions</h3>
+                <div id="promo-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:16px;"></div>
+                <div id="promo-empty" style="color:#aaa; font-style:italic; text-align:center; padding:30px;">No promotions published yet.</div>
+            </div>
+
+            <!-- PAYMENTS TAB -->
+            <div id="tab-payments" class="admin-tab-content hidden">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                    <h2 style="margin:0; font-family:'Playfair Display',serif; color:#2e7d32; font-size:26px;">💳 Payment History</h2>
+                    <span class="muted" style="font-weight:700;">All submitted payments from customers</span>
+                </div>
+                <div id="payment-history-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:16px;"></div>
+                <div id="payment-history-empty" style="color:#aaa; font-style:italic; text-align:center; padding:40px;">No payments recorded yet.</div>
+            </div>
+
+            <!-- MENU ITEM OVERRIDES TAB -->
+            <div id="tab-menu" class="admin-tab-content hidden">
+                <div class="card" style="margin-bottom: 24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h2 style="font-family: 'Playfair Display', serif; color: #2e7d32; margin: 0; font-size: 20px;">Live Inventory View</h2>
+                        <span style="font-size:12px; color:#666; font-weight:700;">Stock syncs with Super Admin</span>
+                    </div>
+                    <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Monitor real-time stock levels of products here. Only a Super Admin can add or modify the total stock items.</p>
+                    <div id="admin-menu-grid">
+                        <!-- Menu items rendered via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- WALK-IN FOOD PICKER MODAL -->
+            <div id="walkin-food-modal" class="hidden" style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center;">
+                <div style="background:white; border-radius:20px; width:90%; max-width:600px; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); overflow:hidden;">
+                    <!-- Header -->
+                    <div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:#f8fafc;">
+                        <h3 style="margin:0; font-family:'Playfair Display',serif; color:#1b5e20; font-size:20px;">Select Menu Items</h3>
+                        <button onclick="closeWalkinFoodPicker()" style="background:none; border:none; color:#64748b; cursor:pointer; padding:5px; font-size:20px;">✕</button>
+                    </div>
+                    
+                    <!-- Search -->
+                    <div style="padding:15px 20px; border-bottom:1px solid #f1f5f9;">
+                        <input type="text" id="walkin-food-search" placeholder="Search menu items..." onkeyup="filterWalkinFoods(this.value)" 
+                            style="width:100%; padding:10px 14px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px; box-sizing:border-box;">
+                    </div>
+
+                    <!-- Scrollable List -->
+                    <div id="walkin-food-content" style="flex:1; overflow-y:auto; padding:20px; background:#f9fafb;">
+                        <!-- Categories and items will be rendered here -->
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="padding:20px; border-top:1px solid #f1f5f9; background:#f8fafc; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-size:12px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Estimate Total</div>
+                            <div style="font-size:24px; font-weight:800; color:#1b5e20;">₱<span id="walkin-modal-total">0</span></div>
+                        </div>
+                        <button onclick="confirmWalkinFoodSelection()" style="background:#1b5e20; color:white; border:none; padding:12px 24px; border-radius:10px; font-weight:700; cursor:pointer; transition:0.2s;">
+                            Confirm Selection
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-overview" class="admin-tab-content">
+                <div class="grid">
+                    <div class="card">
+                        <h3>Total Reservations</h3>
+                    <div class="value" id="stat-total">0</div>
+                </div>
+                <div class="card">
+                    <h3>Priority Reservations</h3>
+                    <div class="value" id="stat-priority">0</div>
+                </div>
+                <div class="card">
+                    <h3>Total Revenue (Priority)</h3>
+                    <div class="value" id="stat-revenue">₱0</div>
+                </div>
+                <div class="card">
+                    <h3>Walk-in Reservations</h3>
+                    <div class="value" id="stat-walkins">0</div>
+                </div>
+                <div class="card" style="border-left: 4px solid #4ade80;">
+                    <h3>Online Customers</h3>
+                    <div class="value" id="stat-online" style="font-size: 22px;">0 Active</div>
+                    <div class="muted" id="online-list" style="margin-top: 6px; font-weight: bold;">None</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <input id="search-input" type="text" placeholder="Search by Reservation # or Customer name...">
+                <button type="button" id="export-csv-btn" class="secondary">Export CSV</button>
+            </div>
+
+            <div class="muted" id="summary-line"></div>
+
+            <div style="height: 12px;"></div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reservation #</th>
+                        <th>Arrival</th>
+                        <th>Customer</th>
+                        <th>Table</th>
+                        <th>Type</th>
+                        <th>Foods / Notes</th>
+                        <th>Paid</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="history-tbody">
+                    <!-- Filled by JS -->
+                </tbody>
+            </table>
+
+            <div style="height: 16px;"></div>
+
+            <div class="grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="card">
+                    <h3>Top Foods (Priority)</h3>
+                    <div class="muted" id="top-foods">No data</div>
+                </div>
+                <div class="card">
+                    <h3>Reservations By Date</h3>
+                    <div class="muted" id="by-date">No data</div>
+                </div>
+            </div>
+            
+            <!-- Edit Modal -->
+            <div id="edit-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100;">
+                <div class="card" style="width: 100%; max-width: 450px; background: white; padding: 25px;">
+                    <h2 style="margin-top:0; color:#1b5e20;">Edit Reservation</h2>
+                    <input type="hidden" id="edit-index">
+                    
+                    <label style="display:block; margin: 10px 0 5px; font-weight:600; font-size:14px; text-transform:uppercase;">Customer Name</label>
+                    <input type="text" id="edit-customer" style="width: 100%; padding:10px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box;">
+                    
+                    <label style="display:block; margin: 10px 0 5px; font-weight:600; font-size:14px; text-transform:uppercase;">Arrival Date</label>
+                    <input type="date" id="edit-date" style="width: 100%; padding:10px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box;">
+                    
+                    <label style="display:block; margin: 10px 0 5px; font-weight:600; font-size:14px; text-transform:uppercase;">Arrival Time</label>
+                    <input type="time" id="edit-time" style="width: 100%; padding:10px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box;">
+                    
+                    <label style="display:block; margin: 10px 0 5px; font-weight:600; font-size:14px; text-transform:uppercase;">Table Selection</label>
+                    <select id="edit-table" style="width: 100%; padding:10px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box;">
+                        <option value="Table 1">Table 1</option>
+                        <option value="Table 2">Table 2</option>
+                        <option value="Table 3">Table 3</option>
+                        <option value="Table 4">Table 4</option>
+                        <option value="Table 5">Table 5</option>
+                        <option value="Table 6">Table 6</option>
+                        <option value="Table 7">Table 7</option>
+                        <option value="Table 8">Table 8</option>
+                        <option value="Table 9">Table 9</option>
+                        <option value="Table 10">Table 10</option>
+                    </select>
+
+                    <div id="edit-foods-container" style="display:none;">
+                        <label style="display:block; margin: 10px 0 5px; font-weight:600; font-size:14px; text-transform:uppercase;">Food Order <span style="font-size:11px;color:#888;">(Comma separated)</span></label>
+                        <input type="text" id="edit-foods" placeholder="e.g. Bangus Steak, French Fries" style="width: 100%; padding:10px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box; margin-bottom:5px;">
+                        <input type="text" id="edit-beef" placeholder="Beef note (e.g. Medium Rare) (Optional)" style="width: 100%; padding:10px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box; background:#f0fdf4;">
+                    </div>
+
+                    <div style="display:flex; gap: 10px; margin-top:20px;">
+                        <button type="button" class="secondary" onclick="closeEditModal()" style="flex:1;">Cancel</button>
+                        <button type="button" onclick="saveEditModal()" style="flex:1;">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+
+            </div> <!-- End tab-overview -->
+
+
+            <div id="tab-floorplan" class="admin-tab-content hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin:0; font-family: 'Playfair Display', serif; color: #2e7d32; font-size: 26px;">Front-of-House Hostess</h2>
+                    <span class="muted" style="font-weight: 700;">Tap tables to manage live status</span>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><div class="dot dot-available"></div> Available</div>
+                    <div class="legend-item"><div class="dot dot-reserved"></div> Reserved</div>
+                    <div class="legend-item"><div class="dot dot-seated"></div> Seated / Dining</div>
+                    <div class="legend-item"><div class="dot dot-cleaning"></div> Cleaning</div>
+                    <div class="legend-item"><div class="dot dot-unavailable"></div> Unavailable</div>
+                </div>
+                <div class="floor-plan" id="hostess-grid">Loading floor plan...</div>
+
+                <!-- Toast Info Panel -->
+                <div id="floor-toast" style="
+                    display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+                    background: white; border-top: 4px solid #2e7d32;
+                    box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
+                    padding: 20px 28px 28px; max-height: 60vh; overflow-y: auto;
+                    animation: slideUp 0.3s ease;
+                ">
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px;">
+                        <span id="toast-table-title" style="font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:#1b5e20;"></span>
+                        <button class="toast-close" onclick="document.getElementById('floor-toast').style.display='none'">✕</button>
+                    </div>
+                    <div id="toast-reservations-list"></div>
+                    <div id="toast-no-res" style="color:#888; font-style:italic; display:none;">No reservations for this table.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Payment Proof Modal (Global, outside all tabs) -->
+    <div id="proof-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; z-index:9999;">
+        <div style="background:white; border-radius:16px; width:100%; max-width:520px; padding:28px; max-height:90vh; overflow-y:auto; position:relative; margin:20px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+            <button onclick="document.getElementById('proof-modal').style.display='none'" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:24px; cursor:pointer; color:#888; line-height:1;">✕</button>
+            <h2 style="margin:0 0 14px; color:#1b5e20; font-family:'Playfair Display',serif;">🧾 Payment Proof</h2>
+            <div id="proof-modal-info" style="margin-bottom:16px; font-size:14px; color:#555; border:1px solid #e2e8f0; border-radius:8px; padding:12px;"></div>
+            <img id="proof-modal-img" src="" style="width:100%; border-radius:10px; border:1px solid #e2e8f0; display:none;">
+            <div id="proof-modal-noimg" style="color:#aaa; font-style:italic; text-align:center; padding:20px;">No screenshot uploaded.</div>
+        </div>
+    </div>
+
+    <script>
+        function normalizeText(v) {
+            return (v || '').toString().trim().toLowerCase();
+        }
+
+        function safeJsonParse(value, fallback) {
+            try { return JSON.parse(value || ''); } catch (e) { return fallback; }
+        }
+
+        const defaultMenuData = [
+            // BEEF (Pure Beef Steaks)
+            { id: 'INV-B1', title: 'Fillet Mignon',                category: 'Beef', price: 935, stock: 50 },
+            { id: 'INV-B2', title: 'Tenderloin Steak (200g)',       category: 'Beef', price: 740, stock: 50 },
+            { id: 'INV-B3', title: 'Tenderloin Tips (200g)',        category: 'Beef', price: 740, stock: 50 },
+            { id: 'INV-B4', title: 'Rib Eye Steak (200-350g)',      category: 'Beef', price: 675, stock: 50 },
+            { id: 'INV-B5', title: 'Hamburger Steak (204g)',        category: 'Beef', price: 505, stock: 50 },
+            // T-BONE
+            { id: 'INV-T1', title: 'T-Bone Medium (250-400g)',      category: 'T-Bone', price: 715, stock: 50 },
+            { id: 'INV-T2', title: 'T-Bone Large (450-500g)',       category: 'T-Bone', price: 790, stock: 50 },
+            { id: 'INV-T3', title: 'T-Bone Extra Large (551-500g)', category: 'T-Bone', price: 865, stock: 50 },
+            { id: 'INV-T4', title: 'T-Bone XX Large (551-500g)',    category: 'T-Bone', price: 940, stock: 50 },
+            { id: 'INV-T5', title: 'Porter House (551-600g)',       category: 'T-Bone', price: 1015, stock: 50 },
+            // SIRLOIN STEAK
+            { id: 'INV-S1', title: 'Sirloin Mini (250-300g)',        category: 'Sirloin Steak', price: 485, stock: 50 },
+            { id: 'INV-S2', title: 'Sirloin Small (251-350g)',       category: 'Sirloin Steak', price: 545, stock: 50 },
+            { id: 'INV-S3', title: 'Sirloin Mid Size (351-450g)',    category: 'Sirloin Steak', price: 605, stock: 50 },
+            { id: 'INV-S4', title: 'Sirloin Big Size (401-450g)',    category: 'Sirloin Steak', price: 670, stock: 50 },
+            // CHICKEN & FISH
+            { id: 'INV-CF1', title: 'Whole Chicken',                 category: 'Chicken & Fish', price: 660, stock: 50 },
+            { id: 'INV-CF2', title: 'Half Chicken',                  category: 'Chicken & Fish', price: 335, stock: 50 },
+            { id: 'INV-CF3', title: 'Fish Steak (Tanigue)',          category: 'Chicken & Fish', price: 495, stock: 50 },
+            { id: 'INV-CF4', title: 'Bangus Steak',                  category: 'Chicken & Fish', price: 510, stock: 50 },
+            // SANDWICH
+            { id: 'INV-SW1', title: 'Big Sunny Burger with Fries',  category: 'Sandwich', price: 430, stock: 50 },
+            { id: 'INV-SW2', title: 'Big Sunny Steak Sandwich with Fries', category: 'Sandwich', price: 400, stock: 50 },
+            { id: 'INV-SW3', title: 'Steak Sandwich',               category: 'Sandwich', price: 165, stock: 50 },
+            { id: 'INV-SW4', title: 'Cheeseburger',                 category: 'Sandwich', price: 170, stock: 50 },
+            { id: 'INV-SW5', title: 'Hamburger',                    category: 'Sandwich', price: 160, stock: 50 },
+            // SIDE ORDERS
+            { id: 'INV-SO1', title: 'Cream of Mushroom Soup',       category: 'Side Orders', price: 80, stock: 50 },
+            { id: 'INV-SO2', title: 'Cream of Chicken Soup',        category: 'Side Orders', price: 80, stock: 50 },
+            { id: 'INV-SO3', title: 'Potato Salad',                 category: 'Side Orders', price: 155, stock: 50 },
+            { id: 'INV-SO4', title: 'French Fries',                  category: 'Side Orders', price: 155, stock: 50 },
+            { id: 'INV-SO5', title: 'Mashed Potato',                category: 'Side Orders', price: 90, stock: 50 },
+            { id: 'INV-SO6', title: 'Garlic Rice',                  category: 'Side Orders', price: 55, stock: 50 },
+            { id: 'INV-SO7', title: 'Plain Rice',                   category: 'Side Orders', price: 40, stock: 50 },
+            { id: 'INV-SO8', title: 'Garlic Bread',                 category: 'Side Orders', price: 45, stock: 50 },
+            // DRINKS
+            { id: 'INV-D1', title: 'Mango Juice',                   category: 'Drinks', price: 135, stock: 50 },
+            { id: 'INV-D2', title: 'Pineapple Juice',               category: 'Drinks', price: 95, stock: 50 },
+            { id: 'INV-D3', title: 'Four Seasons',                   category: 'Drinks', price: 95, stock: 50 },
+            { id: 'INV-D4', title: 'Iced Tea',                       category: 'Drinks', price: 85, stock: 50 },
+            { id: 'INV-D5', title: 'Blue Lemonade',                  category: 'Drinks', price: 95, stock: 50 },
+            { id: 'INV-D6', title: 'Cucumber Juice',                 category: 'Drinks', price: 90, stock: 50 },
+            { id: 'INV-D7', title: 'Pine-Orange Juice',              category: 'Drinks', price: 90, stock: 50 },
+            { id: 'INV-D8', title: 'Calamansi Juice (Hot/Cold)',     category: 'Drinks', price: 70, stock: 50 },
+            { id: 'INV-D9', title: 'Coke in Can',                    category: 'Drinks', price: 95, stock: 50 },
+            { id: 'INV-D10', title: 'Sprite | Royal in Can',        category: 'Drinks', price: 95, stock: 50 },
+            { id: 'INV-D11', title: 'San Miguel Pale Pilsen',           category: 'Drinks', price: 85, stock: 50 },
+            { id: 'INV-D12', title: 'San Mig Light',                 category: 'Drinks', price: 95, stock: 50 },
+            { id: 'INV-D13', title: 'Hot Tea',                       category: 'Drinks', price: 70, stock: 50 },
+            { id: 'INV-D14', title: 'Drip Coffee',                   category: 'Drinks', price: 85, stock: 50 },
+            { id: 'INV-D15', title: 'Coffee with Cream',             category: 'Drinks', price: 55, stock: 50 },
+            { id: 'INV-D16', title: 'Bottled Water (500ml)',         category: 'Drinks', price: 35, stock: 50 },
+            // WINES
+            { id: 'INV-W1', title: 'Carlo Rossi (Red)',             category: 'Wines', price: 700, stock: 50 },
+            { id: 'INV-W2', title: 'Carlo Rossi (White)',           category: 'Wines', price: 700, stock: 50 },
+            { id: 'INV-W3', title: 'Adega De Pegões',               category: 'Wines', price: 600, stock: 50 }
+        ];
+
+        const CATEGORIES = [
+            { key: 'Beef',              label: '🥩 Beef Steaks' },
+            { id:  'T-Bone', key: 'T-Bone', label: '🦴 T-Bone' },
+            { key: 'Sirloin Steak',     label: '🥩 Sirloin Steak' },
+            { key: 'Chicken & Fish',    label: '🍗 Chicken & Fish' },
+            { key: 'Sandwich',          label: '🍔 Sandwich' },
+            { key: 'Side Orders',       label: '🍟 Side Orders' },
+            { key: 'Drinks',            label: '🍹 Drinks' },
+            { key: 'Wines',             label: '🍷 Wines' },
+            { key: 'Supplies',          label: '🧺 Supplies' },
+            { key: 'Others',            label: '📦 Others' }
+        ];
+
+        function getInventory() {
+            try {
+                const inv = localStorage.getItem('inventoryItems');
+                let savedItems = inv ? JSON.parse(inv) : [];
+
+                // Legacy ID Migration
+                const legacyMap = {
+                    'm5':'INV-B1','m6':'INV-B2','m7':'INV-B3','m8':'INV-B4','m9':'INV-B5',
+                    't1':'INV-T1','t2':'INV-T2','t3':'INV-T3','t4':'INV-T4','t5':'INV-T5',
+                    's1':'INV-S1','s2':'INV-S2','s3':'INV-S3','s4':'INV-S4',
+                    'm1':'INV-CF1','m2':'INV-CF2','m3':'INV-CF3','m4':'INV-CF4',
+                    'sw1':'INV-SW1','sw2':'INV-SW2','sw3':'INV-SW3','sw4':'INV-SW4','sw5':'INV-SW5',
+                    'sd1':'INV-SO1','sd2':'INV-SO2','sd3':'INV-SO3','sd4':'INV-SO4','sd5':'INV-SO5','sd6':'INV-SO6','sd7':'INV-SO7','sd8':'INV-SO8',
+                    'd1':'INV-D1','d2':'INV-D2','d3':'INV-D3','d4':'INV-D4','d5':'INV-D5','d6':'INV-D6','d7':'INV-D7','d8':'INV-D8','d9':'INV-D9','d10':'INV-D10','d11':'INV-D11','d12':'INV-D12','d13':'INV-D13','d14':'INV-D14','d15':'INV-D15','d16':'INV-D16',
+                    'w1':'INV-W1','w2':'INV-W2','w3':'INV-W3'
+                };
+                let migrated = false;
+                savedItems.forEach(i => {
+                    if (legacyMap[i.id]) {
+                        i.id = legacyMap[i.id];
+                        migrated = true;
+                    }
+                });
+                if (migrated) {
+                    const unique = [];
+                    const seen = new Set();
+                    savedItems.forEach(i => {
+                        if (!seen.has(i.id)) {
+                            seen.add(i.id);
+                            unique.push(i);
+                        } else {
+                            const existing = unique.find(u => u.id === i.id);
+                            if (i.image && !existing.image) existing.image = i.image;
+                        }
+                    });
+                    savedItems = unique;
+                }
+
+                const savedMap = {};
+                savedItems.forEach(i => { if(i.id) savedMap[i.id] = i; });
+
+                const mainCats = CATEGORIES.map(c => c.key);
+                let mutated = false;
+
+                // Merge: defaults as base, saved values override matching IDs
+                const merged = defaultMenuData.map(def => {
+                    const saved = savedMap[def.id] || {};
+                    const combined = { ...def, ...saved };
+                    
+                    // Category normalization - FORCE update if it's 'Others', 'Supplies', or unknown
+                    if (!mainCats.includes(combined.category) || combined.category === 'Others' || combined.category === 'Supplies') {
+                        const n = (combined.title || combined.name || '').toLowerCase();
+                        let foundCat = 'Others';
+
+                        if (n.match(/fillet mignon|tenderloin|rib eye|hamburger steak|beef|ribeye/)) foundCat = 'Beef';
+                        else if (n.match(/t-bone|porterhouse|porter house/)) foundCat = 'T-Bone';
+                        else if (n.match(/sirloin/)) foundCat = 'Sirloin Steak';
+                        else if (n.match(/chicken|fish|bangus|tanigue|salmon|seafood/)) foundCat = 'Chicken & Fish';
+                        else if (n.match(/burger|sandwich|hamburger|cheeseburger/)) foundCat = 'Sandwich';
+                        else if (n.match(/rice|fries|salad|soup|bread|garlic|potato|mash/)) foundCat = 'Side Orders';
+                        else if (n.match(/wine|carlo rossi|adega|pegoes|rossi/)) foundCat = 'Wines';
+                        else if (n.match(/juice|tea|coffee|coke|sprite|water|royal|pilsen|lemonade|calamansi|beer|san mig|light|drip|cucumber|four seasons/)) foundCat = 'Drinks';
+                        
+                        if (combined.category !== foundCat) {
+                            combined.category = foundCat;
+                            mutated = true;
+                        }
+                    }
+
+                    // Stock normalization
+                    if (combined.total_stock === undefined && combined.stock !== undefined) {
+                        combined.total_stock = combined.stock;
+                        mutated = true;
+                    }
+                    // Virtual stock for legacy UI display
+                    combined.stock = (combined.total_stock || 0) + (combined.added_stock || 0) - (combined.sold_stock || 0);
+                    return combined;
+                });
+
+                // Append custom items
+                savedItems.forEach(i => {
+                    if (i.id && !merged.find(m => m.id === i.id)) {
+                        const copy = { ...i };
+                        copy.stock = (copy.total_stock || 0) + (copy.added_stock || 0) - (copy.sold_stock || 0);
+                        merged.push(copy);
+                    }
+                });
+
+                if (mutated) localStorage.setItem('inventoryItems', JSON.stringify(merged));
+                return merged;
+            } catch (err) {
+                console.error("Inventory error:", err);
+                return defaultMenuData;
+            }
+        }
+
+        function getUsers() {
+            return safeJsonParse(localStorage.getItem('adminUsers'), []) || [];
+        }
+
+        function setUsers(users) {
+            localStorage.setItem('adminUsers', JSON.stringify(users));
+        }
+
+        async function sha256Hex(str) {
+            if (window.crypto && window.crypto.subtle && window.TextEncoder) {
+                const data = new TextEncoder().encode(str);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            return `plain:${str}`;
+        }
+
+        function getReservationHistory() {
+            return safeJsonParse(localStorage.getItem('reservationHistory'), []) || [];
+        }
+
+        function setAdminSession(username) {
+            sessionStorage.setItem('adminLoggedInUser', username);
+        }
+
+        function logoutAdmin() {
+            const username = sessionStorage.getItem('adminLoggedInUser');
+            if (username) {
+                const online = safeJsonParse(localStorage.getItem('onlineAdmins'), {});
+                delete online[username];
+                localStorage.setItem('onlineAdmins', JSON.stringify(online));
+            }
+            sessionStorage.removeItem('adminLoggedInUser');
+            window.location.reload();
+        }
+
+        function renderDashboard() {
+            const dashboard = document.getElementById('dashboard-section');
+            const auth = document.getElementById('auth-section');
+            const adminStatus = document.getElementById('admin-status');
+            const logoutBtn = document.getElementById('logout-admin-btn');
+
+            const history = getReservationHistory().sort((a, b) => {
+                const ta = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+                const tb = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+                return tb - ta;
+            });
+            const priorityHistory = history.filter(r => r.reservationType === 'priority');
+
+            const total = history.length;
+            const priorityCount = priorityHistory.length;
+            const walkinCount = history.filter(r => r.bookedBy === 'staff').length;
+            const revenue = priorityHistory.reduce((sum, r) => sum + Number(r.paymentAmount || 0), 0);
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-priority').textContent = priorityCount;
+            document.getElementById('stat-walkins').textContent = walkinCount;
+            document.getElementById('stat-revenue').textContent = `₱${Number(revenue).toLocaleString()}`;
+
+            const historyTbody = document.getElementById('history-tbody');
+            const searchInput = document.getElementById('search-input');
+            const summaryLine = document.getElementById('summary-line');
+
+            function foodText(r) {
+                const foods = Array.isArray(r.foods) ? r.foods : [];
+                let text = '';
+                if (!foods.length) {
+                    if (r.reservationType === 'standard') text = 'Standard deposit (no foods recorded).';
+                    else text = 'No foods recorded.';
+                } else {
+                    text = foods.join(', ');
+                }
+                if (r.beefNote) text += ` | 🥩 ${r.beefNote}`;
+                return text;
+            }
+
+            function createTypePill(type) {
+                const span = document.createElement('span');
+                if (type === 'priority') {
+                    span.className = 'pill';
+                    span.textContent = 'Priority';
+                } else if (type === 'standard') {
+                    span.className = 'pill std';
+                    span.textContent = 'Standard';
+                } else {
+                    span.className = 'pill std';
+                    span.textContent = type || 'other';
+                }
+                return span;
+            }
+
+            function formatArrival(r) {
+                return r.arrivalDateTimeDisplay || r.arrivalDate || '';
+            }
+
+            function renderRows(rows) {
+                historyTbody.innerHTML = '';
+                if (!rows.length) {
+                    const tr = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.colSpan = 8;
+                    td.className = 'muted';
+                    td.textContent = 'No reservation history found in this browser.';
+                    tr.appendChild(td);
+                    historyTbody.appendChild(tr);
+                    return;
+                }
+
+                rows.forEach(r => {
+                    const tr = document.createElement('tr');
+                    
+                    // NEW HIGHLIGHT LOGIC: Less than 1 minute old
+                    const createdTime = r.completedAt ? new Date(r.completedAt).getTime() : 0;
+                    const isNew = createdTime && (Date.now() - createdTime < 60000);
+                    
+                    if (isNew) {
+                        tr.classList.add('new-order-row');
+                    }
+
+                    const foods = foodText(r);
+
+                    const tdReservation = document.createElement('td');
+                    if (isNew) {
+                        const badge = document.createElement('span');
+                        badge.className = 'new-badge';
+                        badge.textContent = 'NEW';
+                        tdReservation.appendChild(badge);
+                    }
+                    const resNumText = document.createTextNode(r.reservationNumber || '');
+                    tdReservation.appendChild(resNumText);
+
+                    const tdArrival = document.createElement('td');
+                    tdArrival.textContent = formatArrival(r);
+
+                    const tdCustomer = document.createElement('td');
+                    tdCustomer.textContent = r.customerName || '';
+
+                    const tdTable = document.createElement('td');
+                    tdTable.textContent = r.bookedTable || '';
+
+                    const tdType = document.createElement('td');
+                    tdType.appendChild(createTypePill(r.reservationType));
+
+                    const tdFoods = document.createElement('td');
+                    tdFoods.textContent = foods;
+
+                    const tdPaid = document.createElement('td');
+                    tdPaid.innerHTML = `<div>₱${Number(r.paymentAmount || 0).toLocaleString()}</div>`;
+                    if (r.paymentProof || r.paymentRef) {
+                        const proofBtn = document.createElement('button');
+                        proofBtn.textContent = '🧾 View Proof';
+                        proofBtn.style.cssText = 'font-size:11px; padding:3px 8px; margin-top:4px; background:#e0f2fe; border:1px solid #7ec8e3; color:#0369a1; border-radius:4px; cursor:pointer; display:block; width:100%;';
+                        proofBtn.onclick = () => window.openProofModal(r);
+                        tdPaid.appendChild(proofBtn);
+                    }
+
+                    const tdActions = document.createElement('td');
+                    tdActions.innerHTML = `
+                        <button type="button" class="secondary" style="padding: 6px 10px; font-size: 12px; margin-right: 5px;" onclick="window.openEdit('${r.reservationNumber}')">Edit</button>
+                        <button type="button" class="danger" style="padding: 6px 10px; font-size: 12px;" onclick="window.deleteItem('${r.reservationNumber}')">Delete</button>
+                    `;
+
+                    tr.appendChild(tdReservation);
+                    tr.appendChild(tdArrival);
+                    tr.appendChild(tdCustomer);
+                    tr.appendChild(tdTable);
+                    tr.appendChild(tdType);
+                    tr.appendChild(tdFoods);
+                    tr.appendChild(tdPaid);
+                    tr.appendChild(tdActions);
+                    historyTbody.appendChild(tr);
+                });
+            }
+
+            // Expose Edit Functions to Global Scope so buttons can call them
+            window.openEdit = function(resObjNum) {
+                const hist = getReservationHistory();
+                const idx = hist.findIndex(h => h.reservationNumber === resObjNum);
+                if(idx === -1) return;
+                const r = hist[idx];
+                
+                document.getElementById('edit-index').value = idx;
+                document.getElementById('edit-customer').value = r.customerName || '';
+                document.getElementById('edit-date').value = r.arrivalDate || '';
+                document.getElementById('edit-time').value = r.arrivalTime || '';
+                
+                // Extract table number simply if it's full string like 'Table 1'
+                const tSelect = document.getElementById('edit-table');
+                if(r.bookedTable) {
+                    for(let i=0; i<tSelect.options.length; i++) {
+                        if(tSelect.options[i].value === r.bookedTable) tSelect.selectedIndex = i;
+                    }
+                }
+                
+                const foodContainer = document.getElementById('edit-foods-container');
+                if(r.reservationType === 'priority') {
+                    foodContainer.style.display = 'block';
+                    const arr = r.foods || [];
+                    document.getElementById('edit-foods').value = arr.join(', ');
+                    document.getElementById('edit-beef').value = r.beefNote || '';
+                } else {
+                    foodContainer.style.display = 'none';
+                    document.getElementById('edit-foods').value = '';
+                    document.getElementById('edit-beef').value = '';
+                }
+
+                document.getElementById('edit-modal').classList.remove('hidden');
+            };
+
+            window.closeEditModal = function() {
+                document.getElementById('edit-modal').classList.add('hidden');
+            };
+
+            window.openProofModal = function(r) {
+                const modal = document.getElementById('proof-modal');
+                const img = document.getElementById('proof-modal-img');
+                const noImg = document.getElementById('proof-modal-noimg');
+                const info = document.getElementById('proof-modal-info');
+
+                const name = r.customerName || 'Guest';
+                const ref = r.paymentRef || '—';
+                const amount = `₱${Number(r.paymentAmount || 0).toLocaleString()}`;
+                const resNum = r.reservationNumber || '';
+
+                info.innerHTML = `
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <tr><td style="padding:5px 0; color:#888; width:120px;">👤 Customer</td><td style="font-weight:700;">${name}</td></tr>
+                        <tr><td style="padding:5px 0; color:#888;">🔖 Reservation #</td><td style="font-weight:700;">${resNum}</td></tr>
+                        <tr><td style="padding:5px 0; color:#888;">💚 Amount Paid</td><td style="font-weight:700; color:#16a34a;">${amount}</td></tr>
+                        <tr><td style="padding:5px 0; color:#888;">🏦 Ref / Account</td><td style="font-weight:700;">${ref}</td></tr>
+                    </table>
+                `;
+
+                if (r.paymentProof) {
+                    img.src = r.paymentProof;
+                    img.style.display = 'block';
+                    noImg.style.display = 'none';
+                } else {
+                    img.src = '';
+                    img.style.display = 'none';
+                    noImg.style.display = 'block';
+                }
+
+                modal.style.display = 'flex';
+            };
+
+            window.saveEditModal = function() {
+                const idx = parseInt(document.getElementById('edit-index').value);
+                const hist = getReservationHistory();
+                if(idx >= 0 && idx < hist.length) {
+                    hist[idx].customerName = document.getElementById('edit-customer').value;
+                    hist[idx].arrivalDate = document.getElementById('edit-date').value;
+                    hist[idx].arrivalTime = document.getElementById('edit-time').value;
+                    hist[idx].bookedTable = document.getElementById('edit-table').value;
+
+                    if (hist[idx].reservationType === 'priority') {
+                        const rawFoods = document.getElementById('edit-foods').value.trim();
+                        hist[idx].foods = rawFoods ? rawFoods.split(',').map(f => f.trim()).filter(f => f) : [];
+                        hist[idx].orderSummary = hist[idx].foods.join(', ');
+                        hist[idx].beefNote = document.getElementById('edit-beef').value.trim();
+                    }
+
+                    // Re-calculate the display string
+                    const dateObj = new Date(`${hist[idx].arrivalDate}T${hist[idx].arrivalTime}`);
+                    hist[idx].arrivalDateTimeDisplay = isNaN(dateObj) ? `${hist[idx].arrivalDate} at ${hist[idx].arrivalTime}` : dateObj.toLocaleString(undefined, {
+                        weekday: 'short', month: 'short', day: 'numeric',
+                        hour: 'numeric', minute: '2-digit', hour12: true
+                    });
+                    
+                    localStorage.setItem('reservationHistory', JSON.stringify(hist));
+                    // re-render UI
+                    renderDashboard(); // Re-render the whole dashboard state!
+                }
+                window.closeEditModal();
+            };
+
+            window.switchAdminTab = function(tabId, btnElement) {
+                document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+                document.getElementById('tab-' + tabId).classList.remove('hidden');
+                
+                document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
+                if(btnElement) btnElement.classList.add('active');
+            };
+
+            // Hostess Logic
+            const ALL_TABLES = ["Table 1", "Table 2", "Table 3", "Table 4", "Table 5", "Table 6", "Table 7", "Table 8", "Table 9", "Table 10", "VIP Room"];
+            const cycleStatus = { 'available': 'reserved', 'reserved': 'seated', 'seated': 'cleaning', 'cleaning': 'available' };
+
+            function renderFloorPlan() {
+                const overrides = safeJsonParse(localStorage.getItem('tableOverrides'), {});
+                const hist = getReservationHistory();
+                const fp = document.getElementById('hostess-grid');
+                if (!fp) return;
+                fp.innerHTML = '';
+
+                ALL_TABLES.forEach(tId => {
+                    const status = overrides[tId] || 'available';
+
+                    const tableReservations = hist.filter(r => r.bookedTable === tId);
+                    const nextRes = tableReservations.find(r => !r.completedAt);
+                    const metaText = nextRes ? `${nextRes.arrivalDate || ''} @ ${nextRes.arrivalTime || '?'}` : '';
+
+                    const card = document.createElement('div');
+                    card.className = `table-card card-${status}`;
+                    card.style.cursor = 'pointer';
+
+                    card.innerHTML = `
+                        <div class="table-name">${tId}</div>
+                        <div class="table-status">${status}</div>
+                        <div class="table-meta" style="font-size:11px; color:#666; margin-top:4px;">${status === 'reserved' && metaText ? metaText : ''}</div>
+                        <div style="font-size:11px; color:#2e7d32; margin-top:2px;">${tableReservations.length > 0 ? `📋 ${tableReservations.length} Reservation${tableReservations.length > 1 ? 's' : ''}` : ''}</div>
+                    `;
+
+                    card.addEventListener('click', (e) => {
+                        // Open the toast panel for this table
+                        openFloorToast(tId, hist, overrides);
+                    });
+
+                    fp.appendChild(card);
+                });
+            }
+
+            // Open toast showing reservations for a table + status cycler
+            window.openFloorToast = function(tId, hist, overrides) {
+                const toast = document.getElementById('floor-toast');
+                const titleEl = document.getElementById('toast-table-title');
+                const listEl = document.getElementById('toast-reservations-list');
+                const noResEl = document.getElementById('toast-no-res');
+
+                titleEl.textContent = tId;
+                listEl.innerHTML = '';
+
+                const tableRes = hist.filter(r => r.bookedTable === tId);
+
+                if (tableRes.length === 0) {
+                    noResEl.style.display = 'block';
+                } else {
+                    noResEl.style.display = 'none';
+                    tableRes.forEach((res, i) => {
+                        const resIdx = hist.indexOf(res);
+                        const card = document.createElement('div');
+                        card.className = 'toast-res-card';
+                        card.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                                <div>
+                                    <strong>${res.reservationNumber || 'RES'}</strong>
+                                    <span style="margin-left:10px; font-size:13px; color:#555;">${res.customerName || 'Guest'}</span>
+                                </div>
+                                <span style="background:${res.reservationType === 'priority' ? '#fef9c3' : '#e0f2fe'}; color:${res.reservationType === 'priority' ? '#92400e' : '#0369a1'}; font-size:12px; font-weight:700; padding:2px 8px; border-radius:20px;">
+                                    ${res.reservationType || 'standard'}
+                                </span>
+                            </div>
+                            <div style="font-size:13px; color:#444; margin-bottom:10px;">
+                                📅 ${res.arrivalDate || '—'} &nbsp;⏰ ${res.arrivalTime || '—'}
+                            </div>
+                            <div class="toast-edit-row">
+                                <div>
+                                    <label>Date</label>
+                                    <input type="date" id="toast-date-${resIdx}" value="${res.arrivalDate || ''}">
+                                </div>
+                                <div>
+                                    <label>Time</label>
+                                    <input type="time" id="toast-time-${resIdx}" value="${res.arrivalTime || ''}" min="10:30" max="21:00">
+                                </div>
+                                <button class="toast-save-btn" onclick="saveFloorToastEdit(${resIdx})">Save</button>
+                            </div>
+                        `;
+                        listEl.appendChild(card);
+                    });
+                }
+
+                // Status cycle button
+                const currentStatus = overrides[tId] || 'available';
+                const cycleMap = { 'available': 'reserved', 'reserved': 'seated', 'seated': 'cleaning', 'cleaning': 'available', 'unavailable': 'available' };
+                const nextStatus = cycleMap[currentStatus] || 'available';
+
+                const btnRow = document.createElement('div');
+                btnRow.style.display = 'flex';
+                btnRow.style.gap = '10px';
+                btnRow.style.marginTop = '14px';
+
+                const cycleBtn = document.createElement('button');
+                cycleBtn.textContent = `Set to: ${nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1)}`;
+                cycleBtn.style.cssText = 'flex:1; background:#f1f5f9; border:1px solid #cbd5e1; color:#333; padding:9px 18px; border-radius:6px; cursor:pointer; font-weight:600; font-size:14px;';
+                cycleBtn.onclick = () => {
+                    overrides[tId] = nextStatus;
+                    localStorage.setItem('tableOverrides', JSON.stringify(overrides));
+                    renderFloorPlan();
+                    toast.style.display = 'none';
+                };
+
+                const overrideBtn = document.createElement('button');
+                const isUnavailable = currentStatus === 'unavailable';
+                overrideBtn.textContent = isUnavailable ? 'Make Available' : 'Mark Unavailable';
+                overrideBtn.style.cssText = `flex:1; background:${isUnavailable ? '#16a34a' : '#ef4444'}; color:white; border:none; padding:9px 18px; border-radius:6px; cursor:pointer; font-weight:700; font-size:14px;`;
+                overrideBtn.onclick = () => {
+                    overrides[tId] = isUnavailable ? 'available' : 'unavailable';
+                    localStorage.setItem('tableOverrides', JSON.stringify(overrides));
+                    renderFloorPlan();
+                    toast.style.display = 'none';
+                };
+
+                btnRow.appendChild(cycleBtn);
+                btnRow.appendChild(overrideBtn);
+                listEl.appendChild(btnRow);
+
+                toast.style.display = 'block';
+                // Re-run animation
+                toast.style.animation = 'none';
+                toast.offsetHeight; // reflow
+                toast.style.animation = 'slideUp 0.3s ease';
+            };
+
+            window.saveFloorToastEdit = function(idx) {
+                const hist = getReservationHistory();
+                if (idx >= 0 && idx < hist.length) {
+                    const newDate = document.getElementById(`toast-date-${idx}`)?.value || hist[idx].arrivalDate;
+                    const newTime = document.getElementById(`toast-time-${idx}`)?.value || hist[idx].arrivalTime;
+
+                    if (newTime < '10:30' || newTime > '21:00') {
+                        superModal({ title: 'Invalid Time 🕒', message: 'Reservations must be between 10:30 AM and 9:00 PM.' });
+                        return;
+                    }
+
+                    hist[idx].arrivalDate = newDate;
+                    hist[idx].arrivalTime = newTime;
+                    const d = new Date(`${newDate}T${newTime}`);
+                    hist[idx].arrivalDateTimeDisplay = isNaN(d) ? `${newDate} at ${newTime}` : d.toLocaleString(undefined, {
+                        weekday: 'short', month: 'short', day: 'numeric',
+                        hour: 'numeric', minute: '2-digit', hour12: true
+                    });
+                    localStorage.setItem('reservationHistory', JSON.stringify(hist));
+
+                    // Show a quick success flash on the button
+                    const btn = document.querySelector(`#toast-time-${idx}`)?.closest('.toast-edit-row')?.querySelector('.toast-save-btn');
+                    if (btn) { btn.textContent = '✓ Saved!'; btn.style.background = '#16a34a'; setTimeout(() => { btn.textContent = 'Save'; btn.style.background = '#2e7d32'; }, 1500); }
+
+                    renderFloorPlan();
+                    renderDashboard();
+                }
+            };
+
+
+            // Live chat admin logic
+            window.currentActiveChat = null;
+            
+            window.renderAdminChats = function(forceScroll = false) {
+                const allChats = safeJsonParse(localStorage.getItem('liveChats'), {});
+                const listEl = document.getElementById('adminChatList');
+                if(!listEl) return;
+                
+                const sessions = Object.keys(allChats);
+                if (sessions.length === 0) {
+                    listEl.innerHTML = '<div style="padding: 15px; color:#666; font-size:14px; text-align:center;">No active chats.</div>';
+                    return;
+                }
+
+                let listHtml = '';
+                sessions.forEach(sId => {
+                    const msgs = allChats[sId];
+                    if (msgs.length === 0) return;
+                    
+                    const lastMsg = msgs[msgs.length - 1];
+                    let cName = 'Guest';
+                    const custMsg = msgs.find(m => m.sender === 'customer');
+                    if(custMsg) cName = custMsg.name;
+                    
+                    const isActive = sId === window.currentActiveChat;
+                    
+                    listHtml += `
+                        <div class="chat-session-card ${isActive ? 'active' : ''}" onclick="selectAdminChat('${sId}')">
+                            <div class="chat-session-title">${cName}</div>
+                            <div class="chat-session-meta">${lastMsg.time} • ${msgs.length} messages</div>
+                        </div>
+                    `;
+                });
+                
+                if(listEl.innerHTML !== listHtml) {
+                    listEl.innerHTML = listHtml;
+                }
+
+                // If currently viewing a chat, refresh only its content via selectAdminChat silently
+                if (window.currentActiveChat) {
+                    const mainHasContent = document.getElementById('adminChatBody') !== null;
+                    if(!mainHasContent || forceScroll) {
+                        selectAdminChat(window.currentActiveChat, true);
+                    } else {
+                        // Silent update without re-focusing or ruining input
+                        const allChats2 = safeJsonParse(localStorage.getItem('liveChats'), {});
+                        const msgs2 = allChats2[window.currentActiveChat] || [];
+                        let bodyHtml = '';
+                        msgs2.forEach(m => {
+                            const isStaff = m.sender === 'staff';
+                            bodyHtml += `
+                                <div class="chat-msg-admin ${isStaff ? 'staff' : 'customer'}">
+                                    ${m.text}
+                                    <div class="chat-time-admin">${m.time}</div>
+                                </div>
+                            `;
+                        });
+                        const b = document.getElementById('adminChatBody');
+                        if (b) {
+                             const isAtBottom = b.scrollHeight - b.scrollTop <= b.clientHeight + 50;
+                             b.innerHTML = bodyHtml;
+                             if(isAtBottom) b.scrollTop = b.scrollHeight;
+                        }
+                    }
+                }
+            };
+
+            // Live payments logic
+            function renderPayments() {
+                const hist = getReservationHistory();
+                const pending = hist.filter(r => r.paymentStatus === 'pending');
+                const listEl = document.getElementById('payment-history-list');
+                const emptyEl = document.getElementById('payment-history-empty');
+
+                if (pending.length === 0) {
+                    listEl.innerHTML = '';
+                    emptyEl.style.display = 'block';
+                    return;
+                }
+
+                emptyEl.style.display = 'none';
+                let html = '';
+                
+                pending.forEach(r => {
+                    const rIdx = hist.findIndex(hr => hr.reservationNumber === r.reservationNumber);
+                    const amount = `₱${Number(r.paymentAmount || 0).toLocaleString()}`;
+                    
+                    html += `
+                        <div class="card" style="border-left: 4px solid #f59e0b;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                <strong style="font-size:16px;">${r.reservationNumber}</strong>
+                                <span class="pill" style="background:#fef3c7; color:#b45309;">${r.reservationType}</span>
+                            </div>
+                            <div style="font-size:14px; color:#555; margin-bottom:4px;">👤 <strong>${r.customerName}</strong></div>
+                            <div style="font-size:14px; color:#555; margin-bottom:4px;">💰 Amount: <strong style="color:#1b5e20;">${amount}</strong></div>
+                            <div style="font-size:14px; color:#555; margin-bottom:12px;">🏦 Ref: ${r.paymentRef || 'None'}</div>
+                            
+                            <button type="button" class="secondary" style="width:100%; margin-bottom:8px; padding:8px 0; font-size:13px;" onclick='window.openProofModal(${JSON.stringify(r)})'>🧾 View Payment Proof</button>
+                            
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" style="flex:1; background:#ef4444; color:white; border:none; padding:8px 0; border-radius:6px; cursor:pointer;" onclick="rejectPayment(${rIdx})">Reject</button>
+                                <button type="button" style="flex:1; background:#10b981; color:white; border:none; padding:8px 0; border-radius:6px; cursor:pointer;" onclick="verifyPayment(${rIdx})">Verify</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                listEl.innerHTML = html;
+            }
+
+            window.verifyPayment = async function(idx) {
+                const confirmed = await superModal({
+                    title: 'Approve Payment? ✅',
+                    message: 'Are you sure you want to verify and approve this payment?',
+                    type: 'confirm'
+                });
+                if(!confirmed) return;
+                const hist = getReservationHistory();
+                if(hist[idx]) {
+                    hist[idx].paymentStatus = 'verified';
+                    const resNo = hist[idx].reservationNumber;
+                    const custName = hist[idx].customerName || 'Guest';
+                    
+                    localStorage.setItem('reservationHistory', JSON.stringify(hist));
+
+                    // Inject receipt to chat
+                    let chats = safeJsonParse(localStorage.getItem('liveChats'), {});
+                    let targetChatId = null;
+                    
+                    // Match chat session to customer name
+                    for(let sId in chats) {
+                        if (chats[sId].some(m => m.sender === 'customer' && m.name === custName)) {
+                            targetChatId = sId;
+                            break;
+                        }
+                    }
+
+                    // Create chat session if none exists
+                    if (!targetChatId) {
+                        targetChatId = 'session_' + Math.random().toString(36).substr(2, 9);
+                        chats[targetChatId] = [{
+                            sender: 'customer',
+                            name: custName,
+                            text: 'Connected successfully.',
+                            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                        }];
+                    }
+
+                    const receiptHtml = `
+                        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:8px; margin-top:8px;">
+                            <div style="font-weight:bold; color:#1b5e20; margin-bottom:6px;">✅ Payment Verified</div>
+                            <div style="font-size:12px; margin-bottom:8px; color:#555;">Your reservation <strong>${resNo}</strong> is confirmed. Here is your receipt:</div>
+                            <a href="receipt.html?res=${resNo}" target="_blank" style="display:inline-block; background:#2e7d32; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:12px; font-weight:bold;">🧾 View Receipt</a>
+                        </div>
+                    `;
+
+                    chats[targetChatId].push({
+                        sender: 'staff',
+                        text: receiptHtml,
+                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    });
+                    
+                    localStorage.setItem('liveChats', JSON.stringify(chats));
+
+                    renderPayments();
+                    renderDashboard(); // Refresh full history
+                }
+            };
+
+            window.rejectPayment = async function(idx) {
+                const confirmed = await superModal({
+                    title: 'Reject Payment? ❌',
+                    message: 'Are you sure you want to reject this payment? The reservation will be kept but moved back to pending status.',
+                    type: 'confirm'
+                });
+                if(!confirmed) return;
+                const hist = getReservationHistory();
+                if(hist[idx]) {
+                    // Reset payment fields so it effectively goes back to "Unpaid/Pre-order" status
+                    hist[idx].paymentStatus = 'rejected';
+                    hist[idx].paymentProof = null;
+                    hist[idx].paymentRef = '';
+                    hist[idx].rejectionAcknowledged = false;
+                    
+                    localStorage.setItem('reservationHistory', JSON.stringify(hist));
+                    renderPayments();
+                    renderDashboard(); // Refresh full history table
+                }
+            };
+
+            window.selectAdminChat = function(sId, isSilent = false) {
+                window.currentActiveChat = sId;
+                const allChats = safeJsonParse(localStorage.getItem('liveChats'), {});
+                const msgs = allChats[sId] || [];
+                
+                let cName = 'Guest';
+                const custMsg = msgs.find(m => m.sender === 'customer');
+                if(custMsg) cName = custMsg.name;
+                
+                const mainEl = document.getElementById('adminChatMain');
+                
+                let bodyHtml = '';
+                msgs.forEach(m => {
+                    const isStaff = m.sender === 'staff';
+                    bodyHtml += `
+                        <div class="chat-msg-admin ${isStaff ? 'staff' : 'customer'}">
+                            ${m.text}
+                            <div class="chat-time-admin">${m.time}</div>
+                        </div>
+                    `;
+                });
+                
+                if(!isSilent) {
+                    mainEl.innerHTML = `
+                        <div class="chat-main-header">
+                            Chatting with: ${cName}
+                        </div>
+                        <div class="chat-main-body" id="adminChatBody">
+                            ${bodyHtml}
+                        </div>
+                        <div class="chat-reply-area">
+                            <label for="adminChatAttach" style="cursor:pointer; font-size:24px; color:#2e7d32; display:flex; align-items:center;">📷</label>
+                            <input type="file" id="adminChatAttach" accept="image/*" style="display:none;" onchange="sendAdminPhoto(this)">
+                            <input type="text" id="adminChatInput" class="chat-reply-input" placeholder="Type a reply..." onkeypress="if(event.key==='Enter') sendAdminReply()">
+                            <button class="chat-reply-btn" onclick="sendAdminReply()">Reply</button>
+                        </div>
+                    `;
+                    const body = document.getElementById('adminChatBody');
+                    if(body) body.scrollTop = body.scrollHeight;
+                }
+                
+                const listEl = document.getElementById('adminChatList');
+                if (listEl) {
+                        }
+                    });
+                }
+            };
+
+            window.sendAdminReply = function() {
+                if (!window.currentActiveChat) return;
+                const input = document.getElementById('adminChatInput');
+                if (!input) return;
+                const txt = input.value.trim();
+                if (!txt) return;
+                
+                const allChats = safeJsonParse(localStorage.getItem('liveChats'), {});
+                if (!allChats[window.currentActiveChat]) return;
+                
+                allChats[window.currentActiveChat].push({
+                    sender: 'staff',
+                    text: txt,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                
+                localStorage.setItem('liveChats', JSON.stringify(allChats));
+                input.value = '';
+                selectAdminChat(window.currentActiveChat, false);
+            };
+
+            window.sendAdminPhoto = function(input) {
+                if (!window.currentActiveChat) return;
+                const file = input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const b64 = e.target.result;
+                    const txt = `<img src="${b64}" style="max-width:100%; border-radius:8px; margin-top:5px; cursor:pointer;" onclick="window.open('${b64}')">`;
+                    
+                    const allChats = safeJsonParse(localStorage.getItem('liveChats'), {});
+                    if (!allChats[window.currentActiveChat]) return;
+                    
+                    allChats[window.currentActiveChat].push({
+                        sender: 'staff',
+                        text: txt,
+                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    });
+                    
+                    localStorage.setItem('liveChats', JSON.stringify(allChats));
+                    input.value = '';
+                    selectAdminChat(window.currentActiveChat, false);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            window.showNotification = function(text, type = 'success', title = 'System Update') {
+                const container = document.getElementById('notification-container');
+                if (!container) return;
+
+                const id = 'notif_' + Date.now();
+                const div = document.createElement('div');
+                div.className = `custom-notification ${type === 'error' ? 'error-mode' : 'success-mode'}`;
+                div.id = id;
+                
+                div.innerHTML = `
+                    <div class="notification-content">
+                        <div class="notification-title">${title}</div>
+                        <div class="notification-text">${text}</div>
+                    </div>
+                    <button class="notification-close" onclick="this.parentElement.remove()">✕</button>
+                `;
+                
+                container.appendChild(div);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.style.transform = 'translateX(100%)';
+                        el.style.opacity = '0';
+                        setTimeout(() => el.remove(), 300);
+                    }
+                }, 5000);
+            };
+
+            // Promotions logic
+            window.promoBase64 = '';
+            
+            window.previewPromoImage = function(input) {
+                const file = input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    window.promoBase64 = e.target.result;
+                    const img = document.getElementById('promo-preview-img');
+                    img.src = window.promoBase64;
+                    img.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            };
+
+            window.addPromo = function() {
+                const title = document.getElementById('promo-title').value.trim();
+                const desc = document.getElementById('promo-desc').value.trim();
+                
+                if (!title || !desc || !window.promoBase64) {
+                    showNotification('Please provide a title, description, and upload an image.', 'error', 'Action Required');
+                    return;
+                }
+
+                const promos = safeJsonParse(localStorage.getItem('activePromos'), []);
+                promos.push({
+                    id: 'promo_' + Date.now(),
+                    title: title,
+                    desc: desc,
+                    image: window.promoBase64,
+                    publishedAt: new Date().toLocaleDateString()
+                });
+                
+                localStorage.setItem('activePromos', JSON.stringify(promos));
+                
+                // Clear form
+                document.getElementById('promo-title').value = '';
+                document.getElementById('promo-desc').value = '';
+                document.getElementById('promo-preview-img').style.display = 'none';
+                document.getElementById('promo-preview-img').src = '';
+                window.promoBase64 = '';
+                document.getElementById('promo-upload-input').value = '';
+                
+                showNotification('Your promotion is now live on the homepage!', 'success', 'Promo Published');
+                renderPromosAdmin();
+            };
+
+            window.deletePromo = function(id) {
+                superModal({
+                    title: 'Delete Promotion? 🗑️',
+                    message: 'Are you sure you want to remove this promotion?',
+                    type: 'confirm'
+                }).then(confirmed => {
+                    if(confirmed) {
+                        let promos = safeJsonParse(localStorage.getItem('activePromos'), []);
+                        promos = promos.filter(p => p.id !== id);
+                        localStorage.setItem('activePromos', JSON.stringify(promos));
+                        showNotification('Promotion successfully removed.', 'success', 'Promo Deleted');
+                        renderPromosAdmin();
+                    }
+                });
+            };
+
+            window.renderPromosAdmin = function() {
+                const promos = safeJsonParse(localStorage.getItem('activePromos'), []);
+                const listEl = document.getElementById('promo-list');
+                const emptyEl = document.getElementById('promo-empty');
+                
+                if (!listEl) return;
+
+                if (promos.length === 0) {
+                    listEl.innerHTML = '';
+                    emptyEl.style.display = 'block';
+                    return;
+                }
+                
+                emptyEl.style.display = 'none';
+                let html = '';
+                promos.forEach(p => {
+                    html += `
+                        <div class="card" style="padding:15px;">
+                            <img src="${p.image}" style="width:100%; height:140px; object-fit:cover; border-radius:8px; margin-bottom:10px;">
+                            <div style="font-weight:700; font-size:16px; color:#1b5e20; margin-bottom:5px;">${p.title}</div>
+                            <div style="font-size:13px; color:#555; margin-bottom:12px; line-height:1.4;">${p.desc}</div>
+                            <button type="button" class="danger" style="width:100%; font-size:12px; padding:6px 0;" onclick="deletePromo('${p.id}')">Remove Promo</button>
+                        </div>
+                    `;
+                });
+                listEl.innerHTML = html;
+            };
+
+            // Bind pollers
+            if(!window.isPollingActive) {
+                setInterval(() => {
+                    renderFloorPlan();
+                    renderAdminChats();
+                    renderPayments();
+                    renderPromosAdmin();
+                }, 5000);
+                window.isPollingActive = true;
+            }
+            renderFloorPlan();
+            renderPayments();
+            renderPromosAdmin();
+
+            // Kitchen Alarm Logic (Listen for status changes from Independent Cook Area)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'reservationHistory') {
+                    const oldVal = safeJsonParse(e.oldValue, []);
+                    const newVal = safeJsonParse(e.newValue, []);
+                    
+                    // Detect if any order was marked 'ready'
+                    const newlyReady = newVal.find(res => {
+                        const prev = oldVal.find(p => p.reservationNumber === res.reservationNumber);
+                        return res.kdsStatus === 'ready' && (!prev || prev.kdsStatus !== 'ready');
+                    });
+
+                    if (newlyReady) {
+                        playKitchenAlarm(newlyReady.bookedTable);
+                    }
+                    
+                    renderDashboard();
+                }
+            });
+
+            function playKitchenAlarm(tableName) {
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch
+                    oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.3);
+
+                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                } catch(e) { console.warn("Audio alarm blocked"); }
+
+                // Breadcrumb/Notification
+                const notify = document.createElement('div');
+                notify.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; z-index: 10000;
+                    background: #16a34a; color: white; padding: 15px 25px;
+                    border-radius: 12px; font-weight: 800; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                    border: 1px solid rgba(255,255,255,0.2); animation: slideUp 0.3s ease;
+                `;
+                notify.innerHTML = `🛎️ ${tableName || 'Order'} is Cooked!`;
+                document.body.appendChild(notify);
+                setTimeout(() => {
+                    notify.style.opacity = '0';
+                    notify.style.transition = '0.5s';
+                    setTimeout(() => notify.remove(), 500);
+                }, 5000);
+            }
+
+            window.deleteReservation = async function(idx) {
+                const confirmed = await superModal({
+                    title: 'Delete Reservation? 🗑️',
+                    message: 'Are you sure you want to delete this reservation? This action cannot be undone.',
+                    type: 'confirm'
+                });
+                if(!confirmed) return;
+                const hist = getReservationHistory();
+                hist.splice(idx, 1);
+                localStorage.setItem('reservationHistory', JSON.stringify(hist));
+                renderDashboard();
+            };
+
+            window.deleteItem = async function(resObjNum) {
+                const confirmed = await superModal({
+                    title: 'Delete Reservation? 🗑️',
+                    message: 'Are you sure you want to delete this reservation? This action cannot be undone.',
+                    type: 'confirm'
+                });
+                if(confirmed) {
+                    const hist = getReservationHistory();
+                    const filtered = hist.filter(h => h.reservationNumber !== resObjNum);
+                    localStorage.setItem('reservationHistory', JSON.stringify(filtered));
+                    renderDashboard();
+                }
+            };
+
+
+            function applySearch() {
+                const q = normalizeText(searchInput.value);
+                const filtered = !q ? history : history.filter(r => {
+                    const rn = normalizeText(r.reservationNumber);
+                    const cn = normalizeText(r.customerName);
+                    return rn.includes(q) || cn.includes(q);
+                });
+                renderRows(filtered);
+                summaryLine.textContent = `Showing ${filtered.length} of ${history.length} reservations.`;
+                return filtered;
+            }
+
+            renderRows(history);
+            summaryLine.textContent = `Showing ${history.length} of ${history.length} reservations.`;
+            searchInput.addEventListener('input', applySearch);
+
+            // Utility removed (consolidated at top)
+
+            // Live Inventory View using global helpers
+            function renderMenuManagement() {
+                const container = document.getElementById('admin-menu-grid');
+                if(!container) return;
+                container.innerHTML = '';
+                const items = getInventory();
+                
+                CATEGORIES.forEach(cat => {
+                    const catTitle = document.createElement('h3');
+                    catTitle.style.marginTop = '24px';
+                    catTitle.style.marginBottom = '12px';
+                    catTitle.style.fontFamily = "'Playfair Display', serif";
+                    catTitle.style.color = '#2e7d32';
+                    catTitle.style.borderBottom = '2px solid #e2e8f0';
+                    catTitle.style.paddingBottom = '6px';
+                    catTitle.style.fontSize = '18px';
+                    catTitle.textContent = cat.label;
+                    container.appendChild(catTitle);
+
+                    const grid = document.createElement('div');
+                    grid.className = 'grid';
+                    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+                    grid.style.gap = '12px';
+
+                    const catItems = items.filter(i => i.category === cat.key);
+                    catItems.forEach(item => {
+                        const isOut = item.stock <= 0;
+                        const isLow = item.stock > 0 && item.stock <= (item.threshold || 5);
+                        const statusColor = isOut ? '#ef4444' : (isLow ? '#f59e0b' : '#16a34a');
+                        const statusLabel = isOut ? 'Sold Out' : (isLow ? 'Low Stock' : 'Available');
+
+                        const imgSrc = item.image ? item.image : `https://placehold.co/400x300/f0fdf4/2e7d32?text=${encodeURIComponent(item.title.substring(0,2))}`;
+                        
+                        const el = document.createElement('div');
+                        el.className = 'card';
+                        el.style.textAlign = 'center';
+                        el.style.padding = '14px 10px';
+                        
+                        el.innerHTML = `
+                            <div style="position:relative;">
+                                <img src="${imgSrc}" style="width:100%; height:90px; object-fit:cover; border-radius:4px; margin-bottom:8px;">
+                            </div>
+                            <div style="font-weight: 700; margin-bottom: 2px; color: #444; font-size: 13px; min-height: 20px;">${item.title}</div>
+                            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px; font-style: italic;">Needed: ${item.ingredients || 'None listed'}</div>
+                            
+                            <div style="font-size: 15px; font-weight: bold; margin-bottom: 8px;">Stock: <span style="color: ${statusColor}">${item.stock || 0}</span></div>
+                            <div style="width: 100%; font-size: 12px; font-weight: 700; padding: 6px; border-radius: 4px; box-sizing: border-box; background: ${statusColor}15; color: ${statusColor}; border: 1px solid ${statusColor}40;">
+                                ${statusLabel.toUpperCase()}
+                            </div>
+                        `;
+                        grid.appendChild(el);
+                    });
+                    container.appendChild(grid);
+                });
+            }
+
+            renderMenuManagement();
+
+            window.deleteInventoryPhoto = async function(id) {
+                const confirmed = await superModal({
+                    title: 'Delete Photo? 🖼️',
+                    message: "Are you sure you want to delete this item's photo? It will revert to the default placeholder.",
+                    type: 'confirm'
+                });
+                if(!confirmed) return;
+                
+                let items = getInventory();
+                const idx = items.findIndex(i => i.id === id);
+                if(idx > -1) {
+                    // If it's the first time modifying an item from defaultMenuData, 
+                    // it will be saved to inventoryItems in localStorage
+                    if (!localStorage.getItem('inventoryItems')) {
+                        // Initialize local storage from defaults if it doesn't exist
+                        items = JSON.parse(JSON.stringify(items));
+                    }
+                    items[idx].image = null;
+                    localStorage.setItem('inventoryItems', JSON.stringify(items));
+                    
+                    // Refresh UIs
+                    renderMenuManagement();
+                    if(typeof renderWalkinFoodPicker === 'function') renderWalkinFoodPicker(document.getElementById('walkin-food-search')?.value || "");
+                }
+            };
+
+            // Export CSV
+            const exportBtn = document.getElementById('export-csv-btn');
+            exportBtn.onclick = () => {
+                const rows = history.slice().sort((a, b) => {
+                    const ta = new Date(a.completedAt || 0).getTime();
+                    const tb = new Date(b.completedAt || 0).getTime();
+                    return tb - ta;
+                });
+
+                const header = [
+                    'reservationNumber',
+                    'reservationType',
+                    'arrivalDate',
+                    'arrivalTime',
+                    'arrivalDateTimeDisplay',
+                    'customerName',
+                    'bookedTable',
+                    'orderSummary',
+                    'foods',
+                    'paymentAmount',
+                    'completedAt'
+                ];
+                const csvLines = [header.join(',')];
+                rows.forEach(r => {
+                    const foods = Array.isArray(r.foods) ? r.foods.join(';') : '';
+                    const values = [
+                        r.reservationNumber || '',
+                        r.reservationType || '',
+                        r.arrivalDate || '',
+                        r.arrivalTime || '',
+                        r.arrivalDateTimeDisplay || '',
+                        r.customerName || '',
+                        r.bookedTable || '',
+                        r.orderSummary || '',
+                        foods,
+                        Number(r.paymentAmount || 0),
+                        r.completedAt || ''
+                    ].map(v => {
+                        const s = String(v);
+                        return `"${s.replaceAll('"', '""')}"`;
+                    });
+                    csvLines.push(values.join(','));
+                });
+
+                const blob = new Blob(['\uFEFF' + csvLines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rolands-reservations-${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            };
+
+            // Clear history removed from regular admin
+
+            // Show dashboard, hide auth
+            auth.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+
+            const username = sessionStorage.getItem('adminLoggedInUser') || '';
+            adminStatus.textContent = username ? `Signed in as ${username}` : '';
+            logoutBtn.classList.remove('hidden');
+
+            // Online activity tracking heartbeat
+            function updateOnlineStatus() {
+                const online = safeJsonParse(localStorage.getItem('onlineCustomers'), {});
+                const now = Date.now();
+                
+                const activeNames = [];
+                let count = 0;
+                for(const [custId, data] of Object.entries(online)) {
+                    if (now - data.time < 15000) {
+                        count++;
+                        activeNames.push(data.name);
+                    } else {
+                        delete online[custId];
+                    }
+                }
+                localStorage.setItem('onlineCustomers', JSON.stringify(online));
+                
+                const statOnline = document.getElementById('stat-online');
+                const onlineList = document.getElementById('online-list');
+                if (statOnline) statOnline.textContent = `${count} Active`;
+                if (onlineList) onlineList.textContent = activeNames.length ? activeNames.join(', ') : 'None';
+
+                // REFRESH RESERVATION TABLE (to update NEW highlights)
+                if (document.getElementById('tab-overview') && !document.getElementById('tab-overview').classList.contains('hidden')) {
+                    const q = (searchInput.value || '').trim().toLowerCase();
+                    const hist = getReservationHistory().sort((a, b) => {
+                        const ta = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+                        const tb = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+                        return tb - ta;
+                    });
+                    const filtered = !q ? hist : hist.filter(r => {
+                        return (r.reservationNumber || '').toLowerCase().includes(q) ||
+                               (r.customerName || '').toLowerCase().includes(q);
+                    });
+                    renderRows(filtered);
+                }
+            }
+            updateOnlineStatus(); // Initial run
+            setInterval(updateOnlineStatus, 5000); // Poll every 5 seconds
+            
+            // Staff heartbeat
+            setInterval(() => {
+                const me = sessionStorage.getItem('adminLoggedInUser');
+                if (me) {
+                    const onlineAdmins = safeJsonParse(localStorage.getItem('onlineAdmins'), {});
+                    onlineAdmins[me] = Date.now();
+                    
+                    // Cleanup stale admins
+                    for (const a in onlineAdmins) {
+                        if (Date.now() - onlineAdmins[a] > 15000) {
+                            delete onlineAdmins[a];
+                        }
+                    }
+                    localStorage.setItem('onlineAdmins', JSON.stringify(onlineAdmins));
+                }
+            }, 5000);
+            
+            // Delete removed cleanly
+            window.addEventListener('beforeunload', () => {
+                // Not clearing customer status on admin disconnect
+            });
+        }
+
+        function initAuth() {
+            const authSection = document.getElementById('auth-section');
+            const dashboardSection = document.getElementById('dashboard-section');
+            const noAdminUsers = document.getElementById('no-admin-users');
+            const adminLoginPanel = document.getElementById('admin-login');
+            const authMsg = document.getElementById('auth-message');
+            const authMsg2 = document.getElementById('auth-message-2');
+
+            const users = getUsers();
+            const sessionUser = sessionStorage.getItem('adminLoggedInUser');
+
+            const logoutBtn = document.getElementById('logout-admin-btn');
+            logoutBtn.onclick = logoutAdmin;
+
+            if (sessionUser) {
+                return renderDashboard();
+            }
+
+            // Admin login (Attach unconditionally)
+            document.getElementById('admin-login-btn').addEventListener('click', async () => {
+                try {
+                    const username = (document.getElementById('admin-username').value || '').trim();
+                    const password = document.getElementById('admin-password').value || '';
+                    authMsg2.textContent = '';
+                    authMsg2.style.color = '#ef4444';
+
+                    if (!username) { authMsg2.textContent = 'Please enter your username.'; return; }
+                    if (!password) { authMsg2.textContent = 'Please enter your password.'; return; }
+
+                    const usersNow = getUsers();
+                    const user = usersNow.find(u => u.username === username);
+                    if (!user) { authMsg2.textContent = 'Account not found. Ensure you created this staff account in the Super Admin dashboard first.'; return; }
+
+                    const passwordHash = await sha256Hex(password);
+                    const isLegacyMatch = !!(user.password && user.password === password);
+                    const isHashMatch = !!(user.passwordHash && user.passwordHash === passwordHash);
+                    
+                    if (!isLegacyMatch && !isHashMatch) { 
+                        authMsg2.textContent = 'Wrong password. Please try again.'; 
+                        return; 
+                    }
+
+                    // Auto-migrate legacy user to hashed password to upgrade security on the fly
+                    if (isLegacyMatch && !user.passwordHash) {
+                        user.passwordHash = passwordHash;
+                        delete user.password;
+                        localStorage.setItem('adminUsers', JSON.stringify(usersNow));
+                    }
+
+                    setAdminSession(username);
+                    renderDashboard();
+                } catch (err) {
+                    authMsg2.textContent = 'CRITICAL LOGIN ERROR: ' + err.message;
+                }
+            });
+
+            // Allow ENTER key to submit
+            const handleEnter = function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('admin-login-btn').click();
+                }
+            };
+            document.getElementById('admin-username').addEventListener('keypress', handleEnter);
+            document.getElementById('admin-password').addEventListener('keypress', handleEnter);
+
+            if (!users.length) {
+                noAdminUsers.classList.remove('hidden');
+                adminLoginPanel.classList.add('hidden');
+                return;
+            }
+
+        }
+
+        initAuth();
+
+        /* ────────────────────────────────────
+           WALK-IN RESERVATION LOGIC
+        ──────────────────────────────────── */
+        let walkinType = 'priority';
+
+        window.setWalkinType = function(type) {
+            walkinType = type;
+            const pBtn = document.getElementById('walkin-type-priority');
+            const sBtn = document.getElementById('walkin-type-standard');
+            const pFields = document.getElementById('walkin-priority-fields');
+
+            if (type === 'priority') {
+                pBtn.style.cssText = 'flex:1; padding:12px; border-radius:8px; border:2px solid #1b5e20; background:#1b5e20; color:white; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.2s;';
+                sBtn.style.cssText = 'flex:1; padding:12px; border-radius:8px; border:2px solid #cbd5e1; background:white; color:#64748b; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.2s;';
+                pFields.style.display = 'block';
+            } else {
+                sBtn.style.cssText = 'flex:1; padding:12px; border-radius:8px; border:2px solid #1b5e20; background:#1b5e20; color:white; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.2s;';
+                pBtn.style.cssText = 'flex:1; padding:12px; border-radius:8px; border:2px solid #cbd5e1; background:white; color:#64748b; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.2s;';
+                pFields.style.display = 'none';
+            }
+        };
+
+        /* ── Food Picker Modal Logic ── */
+        let tempWalkinOrder = {}; // { id: qty }
+        let currentSelection = {}; // Confirmed selection
+
+        window.openWalkinFoodPicker = function() {
+            document.getElementById('walkin-food-modal').classList.remove('hidden');
+            tempWalkinOrder = JSON.parse(JSON.stringify(currentSelection)); // Clone current
+            renderWalkinFoodPicker();
+            updateWalkinModalTotal();
+        };
+
+        window.closeWalkinFoodPicker = function() {
+            document.getElementById('walkin-food-modal').classList.add('hidden');
+        };
+
+        window.filterWalkinFoods = function(val) {
+            renderWalkinFoodPicker(val.toLowerCase());
+        };
+
+        function renderWalkinFoodPicker(filter = "") {
+            const container = document.getElementById('walkin-food-content');
+            const items = getInventory();
+            
+            let hasResults = false;
+            container.innerHTML = CATEGORIES.map(cat => {
+                const filteredItems = items.filter(item => {
+                    if (item.category !== cat.key) return false;
+                    if (!filter) return true;
+                    return item.title.toLowerCase().includes(filter);
+                });
+
+                if (filteredItems.length === 0) return '';
+                hasResults = true;
+
+                return `
+                    <div style="margin-bottom:24px;">
+                        <div style="font-size:13px; font-weight:800; color:#1b5e20; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin-bottom:12px;">${cat.label}</div>
+                        ${filteredItems.map(item => {
+                            const qty = tempWalkinOrder[item.id] || 0;
+                            const isSoldOut = item.stock <= 0;
+                            return `
+                                <div style="display:flex; align-items:center; background:white; padding:10px; border-radius:12px; border:1px solid #f1f5f9; margin-bottom:8px; opacity: ${isSoldOut ? '0.6' : '1'}">
+                                    <img src="${item.image || `https://placehold.co/100x100?text=${encodeURIComponent(item.title.substring(0,3))}`}" style="width:50px; height:50px; object-fit:cover; border-radius:8px; margin-right:12px;">
+                                    <div style="flex:1;">
+                                        <div style="font-weight:700; font-size:14px; color:#1e293b;">${item.title}</div>
+                                        <div style="font-size:13px; color:#1b5e20; font-weight:600;">₱${item.price?.toLocaleString()}</div>
+                                    </div>
+                                    ${isSoldOut ? '<div style="font-size:11px; font-weight:700; color:#ef4444; text-transform:uppercase;">Sold Out</div>' : `
+                                    <div style="display:flex; align-items:center; gap:10px; background:#f1f5f9; border-radius:8px; padding:4px;">
+                                        <button onclick="changeWalkinItemQty('${item.id}', -1)" style="width:28px; height:28px; border:none; border-radius:6px; background:white; color:#1b5e20; font-weight:800; cursor:pointer;">-</button>
+                                        <span style="font-weight:700; min-width:20px; text-align:center;">${qty}</span>
+                                        <button onclick="changeWalkinItemQty('${item.id}', 1)" style="width:28px; height:28px; border:none; border-radius:6px; background:white; color:#1b5e20; font-weight:800; cursor:pointer;">+</button>
+                                    </div>
+                                    `}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }).join('');
+
+            if (!hasResults) {
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:#64748b;">No items found matching "${filter}"</div>`;
+            }
+        }
+
+        window.changeWalkinItemQty = function(id, delta) {
+            const currentQty = tempWalkinOrder[id] || 0;
+            const newQty = Math.max(0, currentQty + delta);
+            if (newQty === 0) {
+                delete tempWalkinOrder[id];
+            } else {
+                tempWalkinOrder[id] = newQty;
+            }
+            renderWalkinFoodPicker(document.getElementById('walkin-food-search').value.toLowerCase());
+            updateWalkinModalTotal();
+        };
+
+        function updateWalkinModalTotal() {
+            const items = getInventory();
+            let total = 0;
+            for (const id in tempWalkinOrder) {
+                const item = items.find(i => i.id === id);
+                if (item) total += item.price * tempWalkinOrder[id];
+            }
+            document.getElementById('walkin-modal-total').textContent = total.toLocaleString();
+        }
+
+        window.confirmWalkinFoodSelection = function() {
+            currentSelection = JSON.parse(JSON.stringify(tempWalkinOrder));
+            const items = getInventory();
+            const summaryEl = document.getElementById('walkin-order-summary');
+            const paymentInput = document.getElementById('walkin-payment');
+            
+            let total = 0;
+            let summaryText = [];
+            
+            for (const id in currentSelection) {
+                const item = items.find(i => i.id === id);
+                if (item) {
+                    const qty = currentSelection[id];
+                    total += item.price * qty;
+                    summaryText.push(`<span style="font-weight:700; color:#1b5e20;">${qty}x</span> ${item.title}`);
+                }
+            }
+
+            if (summaryText.length > 0) {
+                summaryEl.innerHTML = summaryText.join(", ");
+                paymentInput.value = total;
+            } else {
+                summaryEl.innerHTML = "No items selected yet.";
+                paymentInput.value = "";
+            }
+
+            closeWalkinFoodPicker();
+        };
+
+        window.submitWalkinReservation = function() {
+            const errorEl = document.getElementById('walkin-error');
+            errorEl.style.display = 'none';
+
+            const name    = (document.getElementById('walkin-name').value || '').trim();
+            const contact = (document.getElementById('walkin-contact').value || '').trim();
+            const date    = document.getElementById('walkin-date').value;
+            const time    = document.getElementById('walkin-time').value;
+            const table   = document.getElementById('walkin-table').value;
+            const guests  = document.getElementById('walkin-guests').value;
+            const payment = parseFloat(document.getElementById('walkin-payment').value) || 0;
+            const notes   = (document.getElementById('walkin-notes').value || '').trim();
+
+            if (!name)  { errorEl.textContent = 'Customer name is required.'; errorEl.style.display = 'block'; return; }
+            if (!date)  { errorEl.textContent = 'Arrival date is required.';  errorEl.style.display = 'block'; return; }
+            if (!time)  { errorEl.textContent = 'Arrival time is required.';  errorEl.style.display = 'block'; return; }
+            if (!table) { errorEl.textContent = 'Please select a table.';     errorEl.style.display = 'block'; return; }
+
+            const d = new Date(date + 'T' + time);
+            const displayDt = isNaN(d) ? date + ' ' + time : d.toLocaleString(undefined, {
+                weekday: 'short', month: 'short', day: 'numeric',
+                hour: 'numeric', minute: '2-digit', hour12: true
+            });
+
+            const resNo = 'WI-' + Math.floor(100000 + Math.random() * 900000);
+            
+            // Reconstruct foodArray from currentSelection
+            const invItems = getInventory();
+            const foodArray = [];
+            let orderSummary = "";
+            
+            for (const id in currentSelection) {
+                const item = invItems.find(i => i.id === id);
+                if (item) {
+                    const qty = currentSelection[id];
+                    foodArray.push(`${qty}x ${item.title}`);
+                }
+            }
+            orderSummary = foodArray.join(', ');
+
+            const reservation = {
+                reservationNumber:      resNo,
+                reservationType:        walkinType,
+                arrivalDate:            date,
+                arrivalTime:            time,
+                arrivalDateTimeDisplay: displayDt,
+                customerName:           name,
+                contactNumber:          contact,
+                bookedTable:            table,
+                guestCount:             guests,
+                foods:                  foodArray,
+                orderSummary:           orderSummary,
+                beefNote:               notes,
+                paymentAmount:          walkinType === 'priority' ? payment : 500,
+                paymentStatus:          'walk-in',
+                bookedBy:               'staff',
+                completedAt:            new Date().toISOString(),
+                cartItems:              currentSelection // Keep structured data too
+            };
+
+            const history = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+            history.push(reservation);
+            localStorage.setItem('reservationHistory', JSON.stringify(history));
+
+            // Deduct inventory if priority? Or just for all walkins?
+            // Usually walk-ins should deduct stock immediately.
+            try {
+                const invStr = localStorage.getItem('inventoryItems');
+                if (invStr) {
+                    let items = JSON.parse(invStr);
+                    for (const id in currentSelection) {
+                        const idx = items.findIndex(i => i.id === id);
+                        if (idx > -1) {
+                            items[idx].stock = Math.max(0, items[idx].stock - currentSelection[id]);
+                        }
+                    }
+                    localStorage.setItem('inventoryItems', JSON.stringify(items));
+                    renderMenuManagement(); // Refresh inventory tab
+                }
+            } catch(e) { console.error("Stock deduction failed", e); }
+
+            // Show success toast
+            const toast = document.getElementById('walkin-toast');
+            toast.textContent = `✅ Reservation ${resNo} saved for ${name} — ${table} on ${displayDt}`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 5000);
+
+            // Reset form
+            document.getElementById('walkin-name').value    = '';
+            document.getElementById('walkin-contact').value = '';
+            const now = new Date();
+            document.getElementById('walkin-date').value    = now.toISOString().split('T')[0];
+            document.getElementById('walkin-time').value    = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('walkin-table').value   = '';
+            document.getElementById('walkin-guests').value  = '';
+            document.getElementById('walkin-payment').value = '';
+            document.getElementById('walkin-notes').value   = '';
+            document.getElementById('walkin-food-search').value = '';
+            document.getElementById('walkin-order-summary').innerHTML = "No items selected yet.";
+            currentSelection = {};
+            tempWalkinOrder = {};
+
+            renderRecentWalkins();
+        };
+
+        function renderRecentWalkins() {
+            const container = document.getElementById('walkin-recent-list');
+            if (!container) return;
+            const history = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+            const walkins = history.filter(r => r.bookedBy === 'staff').reverse().slice(0, 10);
+
+            if (!walkins.length) {
+                container.innerHTML = '<div style="color:#aaa; font-style:italic; text-align:center; padding:20px;">No manual reservations yet.</div>';
+                return;
+            }
+
+            container.innerHTML = walkins.map(r => `
+                <div class="card" style="margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:14px 18px;">
+                    <div>
+                        <div style="font-weight:700; font-size:15px; color:#1e293b;">
+                            ${r.customerName}
+                            <span style="font-size:11px; padding:2px 8px; border-radius:12px; margin-left:6px; font-weight:bold;
+                                background:${r.reservationType === 'priority' ? '#fef3c7' : '#dbeafe'};
+                                color:${r.reservationType === 'priority' ? '#92400e' : '#1e3a8a'};">
+                                ${r.reservationType === 'priority' ? '⭐ Priority' : '🪑 Standard'}
+                            </span>
+                        </div>
+                        <div class="muted" style="margin-top:4px; font-size:13px;">${r.bookedTable} &nbsp;·&nbsp; ${r.arrivalDateTimeDisplay}</div>
+                        ${r.foods && r.foods.length ? `<div style="font-size:12px; color:#64748b; margin-top:3px;">🍽️ ${r.foods.join(', ')}</div>` : ''}
+                    </div>
+                    <div style="font-weight:800; font-size:16px; color:#1b5e20;">₱${Number(r.paymentAmount).toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update existing switchAdminTab
+        window.switchAdminTab = function(tab, btn) {
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById('tab-' + tab)?.classList.remove('hidden');
+            document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (tab === 'walkin') {
+                const dateInput = document.getElementById('walkin-date');
+                const timeInput = document.getElementById('walkin-time');
+                // Auto-set date to today if empty
+                if (dateInput && !dateInput.value) {
+                    dateInput.value = new Date().toISOString().split('T')[0];
+                }
+                // Auto-set time to now if empty
+                if (timeInput && !timeInput.value) {
+                    const now = new Date();
+                    timeInput.value = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                }
+                renderRecentWalkins();
+            }
+            if (tab === 'menu' && typeof renderMenuManagement === 'function') renderMenuManagement();
+            if (tab === 'promotions' && typeof renderPromotions === 'function') renderPromotions();
+            if (tab === 'payments' && typeof renderPaymentHistory === 'function') renderPaymentHistory();
+        };
+
+        // Auto-render recent walk-ins when tab loads
+        document.querySelector('[onclick="switchAdminTab(\'walkin\', this)"]')?.addEventListener('click', renderRecentWalkins);
+    </script>
+</body>
+</html>
+

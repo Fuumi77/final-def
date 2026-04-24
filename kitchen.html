@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cook Area | Roland's Steak House</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/kitchen.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/design-system.js"></script>
+    <style>
+        /* Auth Gate Style */
+        #auth-gate {
+            position: fixed; inset: 0; background: #f0fdf4; z-index: 10000;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .auth-card {
+            background: #ffffff; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px;
+            text-align: center; border: 2px solid #dcfce7; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        }
+        .auth-card h1 { font-family: 'Playfair Display', serif; color: #166534; margin: 0 0 10px; font-size: 28px; }
+        .auth-card p { color: #64748b; font-size: 14px; margin-bottom: 30px; }
+        .auth-card .pin-dots { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .auth-card .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #e2e8f0; transition: 0.2s; }
+        .auth-card .pin-dot.filled { background: #22c55e; border-color: #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.3); }
+        .auth-card input {
+            position: absolute; opacity: 0; pointer-events: none;
+        }
+        .auth-card .numpad {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+        }
+        .auth-card .num-btn {
+            background: #f8fafc; color: #1e293b; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px;
+            font-size: 20px; font-weight: 900; cursor: pointer; transition: 0.2s;
+        }
+        .auth-card .num-btn:hover { background: #f0fdf4; border-color: #22c55e; color: #22c55e; }
+        .auth-card .num-btn:active { transform: scale(0.95); }
+        .auth-msg { color: #ef4444; font-size: 13px; font-weight: 700; margin-top: 15px; min-height: 18px; }
+
+        /* Notification Pop-up Style */
+        .new-order-popup {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #166534; color: white; padding: 20px 40px; border-radius: 50px;
+            font-weight: 900; font-size: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            z-index: 9999; display: flex; align-items: center; gap: 15px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: translate(-50%, -100px); opacity: 0; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
+        }
+        .priority-badge {
+            background: #ef4444; color: white; padding: 4px 10px; border-radius: 6px;
+            font-size: 12px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px;
+            display: inline-block;
+        }
+        .ticket-notes {
+            background: #f8fafc; border-radius: 8px; padding: 12px;
+            margin-top: 15px; font-size: 14px; color: #475569; border-left: 4px solid #3b82f6;
+            border: 1px solid #e2e8f0; border-left-width: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- AUTH GATE -->
+    <div id="auth-gate">
+        <div class="auth-card">
+            <h1>Cook Access</h1>
+            <p>Please enter the Kitchen Access Code set by the Super Admin.</p>
+            <div class="pin-dots" id="pin-dots">
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+            </div>
+            <input type="password" id="kitchen-pass-input" maxlength="4" readonly>
+            <div class="numpad">
+                <button class="num-btn" onclick="appendPin('1')">1</button>
+                <button class="num-btn" onclick="appendPin('2')">2</button>
+                <button class="num-btn" onclick="appendPin('3')">3</button>
+                <button class="num-btn" onclick="appendPin('4')">4</button>
+                <button class="num-btn" onclick="appendPin('5')">5</button>
+                <button class="num-btn" onclick="appendPin('6')">6</button>
+                <button class="num-btn" onclick="appendPin('7')">7</button>
+                <button class="num-btn" onclick="appendPin('8')">8</button>
+                <button class="num-btn" onclick="appendPin('9')">9</button>
+                <button class="num-btn" style="background:transparent;" disabled></button>
+                <button class="num-btn" onclick="appendPin('0')">0</button>
+                <button class="num-btn" style="background:#ef4444;" onclick="clearPin()">⌫</button>
+            </div>
+            <div id="auth-msg" class="auth-msg"></div>
+        </div>
+    </div>
+
+    <header>
+        <div class="brand">ROLAND'S KITCHEN 🍳</div>
+        <div class="status-bar">
+            <span>LIVE QUEUE</span>
+            <span id="active-count">0 Orders</span>
+            <span id="sync-indicator" style="color:#22c55e;">● READY</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="ticket-grid" id="kds-grid">
+            <div class="kds-empty">Waiting for orders...</div>
+        </div>
+    </main>
+
+    <script>
+        // AUTH LOGIC
+        let currentPin = "";
+        function appendPin(num) {
+            if(currentPin.length >= 4) return;
+            currentPin += num;
+            updatePinDots();
+            if(currentPin.length === 4) checkAuth();
+        }
+        function clearPin() {
+            currentPin = "";
+            updatePinDots();
+            document.getElementById('auth-msg').textContent = '';
+        }
+        function updatePinDots() {
+            const dots = document.querySelectorAll('.pin-dot');
+            dots.forEach((d, i) => {
+                d.classList.toggle('filled', i < currentPin.length);
+            });
+        }
+
+        async function checkAuth() {
+            const correct = localStorage.getItem('kitchenPassword') || '1234';
+            const msg = document.getElementById('auth-msg');
+
+            // Add small delay for visual feedback
+            await new Promise(r => setTimeout(r, 150));
+
+            if (currentPin === correct) {
+                sessionStorage.setItem('kitchenAuthenticated', 'true');
+                document.getElementById('auth-gate').style.display = 'none';
+                initKitchen();
+            } else {
+                msg.textContent = 'Invalid kitchen access code.';
+                clearPin();
+            }
+        }
+
+        function initKitchen() {
+            renderKitchenQueue(true); // silent initial load
+            setInterval(renderKitchenQueue, 5000);
+        }
+
+        // On page load: if already authenticated this session, skip the PIN gate
+        if (sessionStorage.getItem('kitchenAuthenticated') === 'true') {
+            document.getElementById('auth-gate').style.display = 'none';
+            initKitchen();
+        }
+
+        // QUEUE LOGIC
+        let lastHistoryCount = -1;
+
+        function getReservationHistory() {
+            try {
+                return JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // 24h Time Normalizer for KDS display
+        function normalizeTime24h(timeStr) {
+            if (!timeStr || timeStr === 'ASAP' || timeStr === 'POS Walk-in') return timeStr;
+            // If already HH:mm 24h format
+            if (/^\d{1,2}:\d{2}$/.test(timeStr)) {
+                const [h, m] = timeStr.split(':');
+                return `${h.padStart(2, '0')}:${m}`;
+            }
+            // If AM/PM format
+            const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+            if (match) {
+                let h = parseInt(match[1]);
+                const m = match[2];
+                const ampm = match[3].toUpperCase();
+                if (ampm === 'PM' && h < 12) h += 12;
+                if (ampm === 'AM' && h === 12) h = 0;
+                return `${h.toString().padStart(2, '0')}:${m}`;
+            }
+            return timeStr;
+        }
+
+        function renderKitchenQueue(silent = false) {
+            const hist = getReservationHistory();
+            const grid = document.getElementById('kds-grid');
+            const counter = document.getElementById('active-count');
+            
+            if(!grid) return;
+            
+            // Notification logic: if history grows and it's not the initial load
+            if (!silent && lastHistoryCount !== -1 && hist.length > lastHistoryCount) {
+                const newRes = hist[hist.length - 1];
+                if (newRes.foods && newRes.foods.length > 0) {
+                    showNewOrderPopup();
+                }
+            }
+            lastHistoryCount = hist.length;
+
+            const foodOrders = hist.filter(r => 
+                r.foods && r.foods.length > 0 && 
+                r.kdsStatus !== 'served' && 
+                r.kdsStatus !== 'cancelled' &&
+                r.paymentStatus === 'verified'
+            );
+            
+            foodOrders.sort((a, b) => {
+                if (a.kdsStatus === 'ready' && b.kdsStatus !== 'ready') return 1;
+                if (b.kdsStatus === 'ready' && a.kdsStatus !== 'ready') return -1;
+                if (a.arrivalTime && b.arrivalTime) return a.arrivalTime.localeCompare(b.arrivalTime);
+                return 0;
+            });
+
+            counter.textContent = `${foodOrders.length} Order${foodOrders.length === 1 ? '' : 's'}`;
+
+            if (foodOrders.length === 0) {
+                grid.innerHTML = `<div class="kds-empty">Nothing cooking right now.</div>`;
+                return;
+            }
+
+            grid.innerHTML = '';
+            foodOrders.forEach(r => {
+                const realIdx = hist.findIndex(hr => hr.reservationNumber === r.reservationNumber);
+                const status = r.kdsStatus || 'pending';
+                const isPriority = r.reservationType === 'priority';
+                
+                const t = document.createElement('div');
+                t.className = `ticket status-${status}`;
+                
+                const foodsHtml = (r.foods || []).map(f => `<li>${f}</li>`).join('');
+                
+                // Detailed Notes
+                let detailHtml = '';
+                if (r.beefNote) detailHtml += `<strong>🥩 Beef Pref:</strong> ${r.beefNote}<br>`;
+                if (r.notes) detailHtml += `<strong>📝 Note:</strong> ${r.notes}`;
+                
+                let btns = '';
+                if (status === 'pending') {
+                    btns = `
+                        <button class="btn-cook" onclick="updateStatus(${realIdx}, 'cooking')">START COOKING</button>
+                        <button class="btn-clear" style="margin-top:8px;" onclick="cancelOrder(${realIdx})">🚫 CANCEL ORDER</button>
+                    `;
+                } else if (status === 'cooking') {
+                    btns = `
+                        <button class="btn-ready" onclick="updateStatus(${realIdx}, 'ready')">MARK AS COOKED</button>
+                        <button class="btn-clear" style="margin-top:8px;" onclick="cancelOrder(${realIdx})">🚫 CANCEL ORDER</button>
+                    `;
+                } else if (status === 'ready') {
+                    btns = `<button class="btn-clear" onclick="updateStatus(${realIdx}, 'served')">DONE / DISMISS</button>`;
+                }
+
+                t.innerHTML = `
+                    ${isPriority ? '<div class="priority-badge">⭐ Priority Order</div>' : ''}
+                    <div class="ticket-header">
+                        <div>
+                            <div class="ticket-table">${r.bookedTable || 'Waiting'}</div>
+                            <div class="ticket-name">${r.customerName}</div>
+                        </div>
+                        <div class="ticket-meta">
+                            <div class="ticket-time">🕒 Cook at: ${normalizeTime24h(r.arrivalTime || 'ASAP')}</div>
+                            <div class="ticket-status status-text-${status}">${status}</div>
+                        </div>
+                    </div>
+                    <ul class="food-list">${foodsHtml}</ul>
+                    ${detailHtml ? `<div class="ticket-notes">${detailHtml}</div>` : ''}
+                    <div class="actions" style="margin-top:20px;">${btns}</div>
+                `;
+                grid.appendChild(t);
+            });
+        }
+
+        function showNewOrderPopup() {
+            // Sound
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.5);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            } catch(e) {}
+
+            const div = document.createElement('div');
+            div.className = 'new-order-popup';
+            div.innerHTML = '🔔 NEW ORDER RECEIVED!';
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transition = '0.5s';
+                setTimeout(() => div.remove(), 500);
+            }, 3000);
+        }
+
+        function updateStatus(idx, newStatus) {
+            const hist = getReservationHistory();
+            if(hist[idx]) {
+                hist[idx].kdsStatus = newStatus;
+                hist[idx].kdsUpdateAt = Date.now(); 
+                localStorage.setItem('reservationHistory', JSON.stringify(hist));
+                renderKitchenQueue(true);
+            }
+        }
+
+        async function cancelOrder(idx) {
+            const confirmed = await superModal({
+                title: 'Cancel Order? 🚫',
+                message: 'Are you sure you want to CANCEL this order? It will be removed from the kitchen queue.',
+                type: 'confirm',
+                confirmText: 'Yes, Cancel It',
+                cancelText: 'Keep Cooking'
+            });
+            if(!confirmed) return;
+            const hist = getReservationHistory();
+            if(hist[idx]) {
+                hist[idx].kdsStatus = 'cancelled';
+                hist[idx].kdsUpdateAt = Date.now();
+                localStorage.setItem('reservationHistory', JSON.stringify(hist));
+                renderKitchenQueue(true);
+            }
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'reservationHistory') {
+                renderKitchenQueue();
+                const indicator = document.getElementById('sync-indicator');
+                indicator.style.color = '#3b82f6';
+                setTimeout(() => indicator.style.color = '#22c55e', 500);
+            }
+            if (e.key === 'kitchenPassword') {
+                // If password changes while open, force re-auth
+                sessionStorage.removeItem('kitchenAuthenticated');
+                window.location.reload();
+            }
+        });
+
+    </script>
+</body>
+</html>

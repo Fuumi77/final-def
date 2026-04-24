@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostess View | Roland's</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/hostess.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/design-system.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="brand">Welcome Desk</div>
+        <div class="clock" id="live-clock">00:00</div>
+    </header>
+
+    <div class="container">
+        <div class="legend">
+            <div class="legend-item"><div class="dot dot-available"></div> Available</div>
+            <div class="legend-item"><div class="dot dot-reserved"></div> Reserved</div>
+            <div class="legend-item"><div class="dot dot-seated"></div> Seated / Dining</div>
+            <div class="legend-item"><div class="dot dot-cleaning"></div> Cleaning</div>
+        </div>
+        
+        <p class="hostess-hint">Tap a table to cycle its real-time floor status.</p>
+
+        <div class="floor-plan" id="floor-plan">
+            <!-- Rendered via JS -->
+        </div>
+    </div>
+
+    <script>
+        // Update Live Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        const tables = [
+            "Table 1", "Table 2", "Table 3", "Table 4", "Table 5",
+            "Table 6", "Table 7", "Table 8", "Table 9", "Table 10"
+        ];
+
+        // Status flow: available -> reserved -> seated -> cleaning -> available
+        const cycleStatus = {
+            'available': 'reserved',
+            'reserved': 'seated',
+            'seated': 'cleaning',
+            'cleaning': 'available'
+        };
+
+        function loadFloorPlan() {
+            // "tableOverrides" is used by seat-selection.html
+            // we will treat anything that is not literally "available" (or empty) as unavailable in seat-selection. 
+            // the hostess tool uses specific states (seated, cleaning, reserved).
+            const overrides = JSON.parse(localStorage.getItem('tableOverrides') || '{}');
+            const history = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+            
+            const fp = document.getElementById('floor-plan');
+            fp.innerHTML = '';
+
+            tables.forEach(tId => {
+                let status = overrides[tId] || 'available';
+                // Map legacy "unavailable" from master admin to "reserved" for hostess view
+                if (status === 'unavailable') status = 'reserved';
+                
+                // See if there's an upcoming reservation today for this table
+                const reservation = history.find(r => r.bookedTable === tId && !r.completedAt);
+                const metaText = reservation ? `booked for ${reservation.arrivalTime || 'today'}` : '';
+
+                const card = document.createElement('div');
+                card.className = `table-card card-${status}`;
+                card.onclick = () => updateTable(tId, status);
+                
+                card.innerHTML = `
+                    <div class="table-name">${tId}</div>
+                    <div class="table-status">${status}</div>
+                    <div class="table-meta">${status === 'reserved' && metaText ? metaText : ''}</div>
+                `;
+                
+                fp.appendChild(card);
+            });
+        }
+
+        window.updateTable = function(tId, currentStatus) {
+            const nextStatus = cycleStatus[currentStatus] || 'available';
+            const overrides = JSON.parse(localStorage.getItem('tableOverrides') || '{}');
+            
+            overrides[tId] = nextStatus;
+            
+            localStorage.setItem('tableOverrides', JSON.stringify(overrides));
+            loadFloorPlan();
+        };
+
+        // Network Poller wrapper
+        setInterval(loadFloorPlan, 5000);
+        
+        loadFloorPlan();
+    </script>
+</body>
+</html>

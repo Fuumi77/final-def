@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/login",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/signup",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/reservations",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/reserve",
+      "dest": "/server.js"
+    }
+  ]
+}

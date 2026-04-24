@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Payment | Roland's</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/gcash.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/design-system.js"></script>
+</head>
+<body>
+    <header id="main-header">
+        <div class="logo"><img src="images/rolandsLOGO.jpg" alt="Logo"></div>
+    </header>
+
+
+
+    <section id="payment-section">
+        <div class="payment-card" style="position: relative;">
+            <h2 id="pay-title" style="font-family:'Playfair Display',serif; color:#2e7d32; margin:0 0 4px; font-size:clamp(22px,5vw,30px);">Deposit Payment</h2>
+            <p style="color:#888; margin:0 0 8px; font-size:14px;">Scan or save the QR code, then upload your screenshot.</p>
+
+            <!-- Amount badge -->
+            <div class="amount-badge">
+                <p id="pay-badge-label" style="margin:0; font-size:12px; color:#555; text-transform:uppercase; letter-spacing:.5px;">Reservation Deposit</p>
+                <p id="pay-badge-amount" style="margin:6px 0 0; font-size:28px; font-weight:800; color:#1b5e20;">₱200.00</p>
+            </div>
+
+            <!-- Animated toggle -->
+            <div class="pay-toggle" id="payToggle">
+                <div class="pay-toggle-slider" id="toggleSlider"></div>
+                <button class="pay-toggle-btn active" id="btnGcash" onclick="switchQR('gcash')">💙 GCash</button>
+                <button class="pay-toggle-btn" id="btnQrph" onclick="switchQR('qrph')">🔴 QR Ph</button>
+            </div>
+
+            <!-- QR Panels -->
+            <div class="qr-panels">
+
+                <!-- GCash Panel -->
+                <div class="qr-panel active" id="panel-gcash">
+                    <div class="qr-img-wrap">
+                        <img src="images/gcash-qr.png" alt="GCash QR Code">
+                    </div>
+                    <a href="images/gcash-qr.png" download="gcash-qr.png" class="save-btn gcash">
+                        💾 Save to Device
+                    </a>
+                </div>
+
+                <!-- QR Ph Panel -->
+                <div class="qr-panel" id="panel-qrph">
+                    <div class="qr-img-wrap">
+                        <img src="images/qrph-qr.png" alt="QR Ph Code">
+                    </div>
+                    <a href="images/qrph-qr.png" download="qrph-qr.png" class="save-btn qrph">
+                        💾 Save to Device
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Upload proof -->
+            <div style="margin-top: 28px; text-align:left;">
+                <label style="font-weight:700; font-size:13px; color:#333; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:8px;">
+                    Upload Payment Screenshot
+                </label>
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" id="proof-upload" accept="image/*" onchange="previewProof(this)">
+                    <div id="upload-placeholder">
+                        <div class="upload-icon">📤</div>
+                        <p style="margin:0; font-size:14px; color:#666;">Tap to upload your payment screenshot</p>
+                        <p style="margin:4px 0 0; font-size:12px; color:#aaa;">PNG, JPG supported</p>
+                    </div>
+                    <img id="upload-preview" class="upload-preview" alt="Payment screenshot preview">
+                </div>
+                <p id="upload-filename" style="font-size:12px; color:#2e7d32; margin:6px 0 0; font-weight:600;"></p>
+            </div>
+
+            <!-- Reference No. (optional) -->
+            <div style="margin-top:18px; text-align:left;">
+                <label style="font-weight:700; font-size:13px; color:#333; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:8px;">
+                    Reference No. <span style="font-weight:400; color:#aaa;">(optional)</span>
+                </label>
+                <input type="text" id="ref-num" placeholder="GCash / QR Ph reference number"
+                    style="width:100%; padding:13px 14px; border:1px solid #ddd; border-radius:10px; font-size:15px; box-sizing:border-box; font-family:'Roboto',sans-serif;">
+            </div>
+
+            <button id="confirm-payment-btn" style="width:100%; margin-top:22px; padding:16px; font-size:16px; border-radius:12px;">
+                ✅ Confirm &amp; Submit Payment
+            </button>
+
+            <button type="button" onclick="cancelBooking()"
+                style="width:100%; margin-top:12px; padding:14px; font-size:15px; border-radius:12px;
+                       background: transparent; color: #ef4444; border: 2px solid #fca5a5;
+                       font-weight: 700; cursor: pointer; font-family:'Roboto',sans-serif; transition: all 0.2s ease;"
+                onmouseover="this.style.background='#fef2f2'; this.style.borderColor='#ef4444';"
+                onmouseout="this.style.background='transparent'; this.style.borderColor='#fca5a5';">
+                ✕ Cancel Booking
+            </button>
+            <p style="text-align:center; font-size:12px; color:#aaa; margin: 8px 0 0;">
+                Cancellation will remove your reservation and return you to the homepage.
+            </p>
+        </div>
+    </section>
+
+    <script>
+        // ── VIP / Standard context ─────────────────────────────────
+        const resType = localStorage.getItem('reservationType');
+        const isVip   = resType === 'vip';
+        if (isVip) {
+            document.getElementById('pay-title').textContent      = '👑 VIP Room Down Payment';
+            document.getElementById('pay-badge-label').textContent = 'VIP Room Down Payment';
+            document.getElementById('pay-badge-amount').textContent = '₱1,000.00';
+            document.querySelector('.payment-card').style.borderTopColor = '#ffd700';
+        }
+
+        /* ────────────────────────────────────────
+           Back Button Protection
+        ──────────────────────────────────────── */
+        (function initBackProtection() {
+            history.pushState(null, null, window.location.href);
+            window.addEventListener('popstate', function () {
+                history.pushState(null, null, window.location.href);
+                cancelBooking();
+            });
+            window.onbeforeunload = function() {
+                return "Are you sure you want to cancel your booking? Progress will be lost.";
+            };
+        })();
+
+        function switchQR(type) {
+            const slider = document.getElementById('toggleSlider');
+            const btnGcash = document.getElementById('btnGcash');
+            const btnQrph = document.getElementById('btnQrph');
+            const panelGcash = document.getElementById('panel-gcash');
+            const panelQrph = document.getElementById('panel-qrph');
+
+            if (type === 'gcash') {
+                slider.classList.remove('right');
+                btnGcash.classList.add('active');
+                btnQrph.classList.remove('active');
+                panelGcash.classList.add('active');
+                panelQrph.classList.remove('active');
+            } else {
+                slider.classList.add('right');
+                btnGcash.classList.remove('active');
+                btnQrph.classList.add('active');
+                panelGcash.classList.remove('active');
+                panelQrph.classList.add('active');
+            }
+        }
+
+        function previewProof(input) {
+            const preview = document.getElementById('upload-preview');
+            const placeholder = document.getElementById('upload-placeholder');
+            const filename = document.getElementById('upload-filename');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    filename.textContent = '✓ ' + input.files[0].name;
+                    localStorage.setItem('tempPaymentUpload', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        document.getElementById('confirm-payment-btn').addEventListener('click', () => {
+            const ref = document.getElementById('ref-num').value.trim();
+            const fileInput = document.getElementById('proof-upload');
+            const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+            if (!ref && !hasFile) {
+                superModal({
+                    title: 'Missing Info 📋',
+                    message: 'Please upload your payment screenshot or enter the reference number.'
+                });
+                return;
+            }
+
+            document.getElementById('confirm-payment-btn').textContent = "Processing...";
+            document.getElementById('confirm-payment-btn').disabled = true;
+
+            setTimeout(() => {
+                const resNo = 'RES-' + Math.floor(100000 + Math.random() * 900000);
+                localStorage.setItem('reservationNumber', resNo);
+
+                const history = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+
+                const dateKey = localStorage.getItem('arrivalDate') || '';
+                const timeKey = localStorage.getItem('arrivalTime') || '';
+                const rawDateStr = dateKey + "T" + timeKey;
+                const d = new Date(rawDateStr);
+                const displayDt = isNaN(d) ? rawDateStr : d.toLocaleString(undefined, {
+                    weekday: 'short', month: 'short', day: 'numeric',
+                    hour: 'numeric', minute: '2-digit', hour12: true
+                });
+
+                localStorage.setItem('arrivalDateTimeDisplay', displayDt);
+
+                let pendingResNo = resNo;
+                history.push({
+                    reservationNumber: resNo,
+                    reservationType: 'standard',
+                    arrivalDate: dateKey,
+                    arrivalTime: timeKey,
+                    arrivalDateTimeDisplay: displayDt,
+                    customerName: localStorage.getItem('customerName'),
+                    bookedTable: localStorage.getItem('bookedTable'),
+                    orderSummary: isVip ? 'VIP Room Down Payment' : 'Standard Reservation Deposit',
+                    foods: [],
+                    paymentAmount: isVip ? 1000 : 200,
+                    paymentRef: ref,
+                    paymentProof: localStorage.getItem('tempPaymentUpload') || '',
+                    paymentStatus: 'pending',
+                    completedAt: new Date().toISOString()
+                });
+
+                localStorage.removeItem('tempPaymentUpload');
+                localStorage.setItem('reservationHistory', JSON.stringify(history));
+                
+                // Disable back/unload protection before final redirect
+                window.onbeforeunload = null;
+
+                superModal({
+                    title: 'Payment Submitted! 🎉',
+                    message: 'Please wait for staff to verify it. Your receipt will be sent directly to the live chat support once approved.'
+                }).then(() => { window.location.href = "index.html"; });
+            }, 1000);
+        });
+
+        /* ────────────────────────────────────────
+           Modal & Cancel Logic
+        ──────────────────────────────────────── */
+
+
+        async function cancelBooking() {
+            const confirmed = await superModal({
+                title: 'Cancel Booking? ⚠️',
+                message: 'Your reservation will be removed and you will be returned to the homepage.',
+                type: 'confirm',
+                confirmText: 'Yes, Cancel',
+                cancelText: 'Stay Here'
+            });
+            if (confirmed) {
+                localStorage.removeItem('totalBill');
+                localStorage.removeItem('cartItems');
+                localStorage.removeItem('reservationData');
+                localStorage.removeItem('tempPaymentUpload');
+                localStorage.removeItem('pendingReservation');
+                window.onbeforeunload = null;
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

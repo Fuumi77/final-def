@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Display System (KDS) | Roland's</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/kds.css">
+</head>
+<body>
+
+    <header>
+        <div class="brand">Kitchen Display (KDS)</div>
+        <div class="kds-clock" id="live-clock">00:00:00</div>
+    </header>
+
+    <div class="container">
+        <div class="controls">
+        <span class="kds-sync-hint">Syncs automatically every 5 seconds.</span>
+        </div>
+        
+        <div class="ticket-grid" id="ticket-grid">
+            <!-- Tickets injected via JS -->
+            <div class="no-tickets">Loading queue...</div>
+        </div>
+    </div>
+
+    <script>
+        // Update Live Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').textContent = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function loadTickets() {
+            const hist = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+            const grid = document.getElementById('ticket-grid');
+            grid.innerHTML = '';
+            
+            // Filter orders with foods that are NOT served
+            const foodOrders = hist.filter(r => r.foods && r.foods.length > 0 && r.kdsStatus !== 'served');
+            
+            // Sort to push Ready to the end, or oldest to the front
+            foodOrders.sort((a, b) => {
+                if (a.kdsStatus === 'ready' && b.kdsStatus !== 'ready') return 1;
+                if (b.kdsStatus === 'ready' && a.kdsStatus !== 'ready') return -1;
+                // Otherwise sort by arrival time
+                if (a.arrivalTime && b.arrivalTime) {
+                    return a.arrivalTime.localeCompare(b.arrivalTime);
+                }
+                return 0;
+            });
+            
+            if (foodOrders.length === 0) {
+                grid.innerHTML = `<div class="no-tickets">No Active Pre-Orders in Queue</div>`;
+                return;
+            }
+
+            foodOrders.forEach(r => {
+                // Find real index for saving back to localStorage
+                const realIdx = hist.findIndex(hr => hr.reservationNumber === r.reservationNumber);
+                
+                const status = r.kdsStatus || 'pending';
+                const t = document.createElement('div');
+                t.className = `ticket status-${status}`;
+                
+                // Construct the food line items natively 
+                const foodsHtml = (r.foods || []).map(f => `<li><span class="qty">1x</span> ${f}</li>`).join('');
+                
+                let btns = '';
+                if (status === 'pending') {
+                    btns = `<button class="btn-cook" onclick="updateStatus(${realIdx}, 'cooking')">Start Cooking</button>`;
+                } else if (status === 'cooking') {
+                    btns = `<button class="btn-ready" onclick="updateStatus(${realIdx}, 'ready')">Mark Ready</button>`;
+                } else if (status === 'ready') {
+                    btns = `<button class="btn-clear" onclick="updateStatus(${realIdx}, 'served')">Dismiss (Served)</button>`;
+                }
+
+                t.innerHTML = `
+                    <div class="ticket-header">
+                        <div>
+                            <div class="ticket-table">${r.bookedTable || 'Waiting'}</div>
+                            <div class="ticket-name">${r.customerName}</div>
+                            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">#${r.reservationNumber}</div>
+                        </div>
+                        <div class="ticket-meta">
+                            <div class="ticket-time">${r.arrivalTime || 'ASAP'}</div>
+                            <div class="ticket-status status-text-${status}">${status}</div>
+                        </div>
+                    </div>
+                    <ul class="food-list">${foodsHtml}</ul>
+                    <div class="actions">${btns}</div>
+                `;
+                grid.appendChild(t);
+            });
+        }
+
+        window.updateStatus = function(idx, newStatus) {
+            const hist = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+            if(hist[idx]) {
+                hist[idx].kdsStatus = newStatus;
+                localStorage.setItem('reservationHistory', JSON.stringify(hist));
+                loadTickets();
+            }
+        };
+
+        // Network Poller
+        setInterval(loadTickets, 5000);
+        
+        // Initial Load
+        loadTickets();
+    </script>
+</body>
+</html>

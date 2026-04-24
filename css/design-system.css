@@ -1,0 +1,156 @@
+/* 
+   ROLAND'S STEAKHOUSE - UNIFIED DESIGN SYSTEM
+   Theme: Green & White (Premium)
+*/
+
+:root {
+    --ds-primary: #1b5e20;
+    --ds-secondary: #2e7d32;
+    --ds-accent: #10b981;
+    --ds-danger: #ef4444;
+    --ds-text: #1e293b;
+    --ds-text-muted: #64748b;
+    --ds-bg: #ffffff;
+    --ds-overlay: rgba(15, 23, 42, 0.6);
+    --ds-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* ══════════════════════════════════════════════════════════
+   SUPER MODAL STYLES
+   ══════════════════════════════════════════════════════════ */
+.super-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--ds-overlay);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    padding: 20px;
+    animation: dsFadeIn 0.3s ease-out forwards;
+}
+
+.super-modal-box {
+    background: var(--ds-bg);
+    width: 100%;
+    max-width: 440px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--ds-shadow);
+    border: 1px solid rgba(27, 94, 32, 0.1);
+    animation: dsSpringUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.super-modal-header {
+    background: var(--ds-primary);
+    padding: 20px 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.super-modal-header h3 {
+    margin: 0;
+    color: white;
+    font-size: 19px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+}
+
+.super-modal-body {
+    padding: 30px 25px;
+    text-align: left;
+}
+
+.super-modal-body p {
+    margin: 0;
+    color: var(--ds-text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.super-modal-footer {
+    padding: 0 25px 25px 25px;
+    display: flex;
+    gap: 12px;
+}
+
+.super-modal-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.super-modal-btn.confirm {
+    background: var(--ds-primary);
+    color: white;
+}
+
+.super-modal-btn.confirm:hover {
+    background: var(--ds-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(27, 94, 32, 0.2);
+}
+
+.super-modal-btn.cancel {
+    background: #f1f5f9;
+    color: var(--ds-text-muted);
+    border: 1px solid #e2e8f0;
+}
+
+.super-modal-btn.cancel:hover {
+    background: #e2e8f0;
+    color: var(--ds-text);
+}
+
+.super-modal-input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.2s;
+    background: #f8fafc;
+    box-sizing: border-box;
+    text-align: center;
+    font-weight: 700;
+    color: var(--ds-primary);
+    margin-bottom: 5px;
+}
+
+.super-modal-input:focus {
+    outline: none;
+    border-color: var(--ds-primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(27, 94, 32, 0.1);
+}
+
+/* Animations */
+@keyframes dsFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes dsSpringUp {
+    from { transform: translateY(40px) scale(0.9); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Modal Root */
+#super-modal-root {
+    position: absolute;
+    z-index: 100000;
+}

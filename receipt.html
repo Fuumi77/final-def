@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Receipt | Roland's Steak House</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="css/receipt.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/design-system.js"></script>
+</head>
+
+<body>
+
+    <div class="receipt-wrapper">
+        <div class="receipt-paper" id="receipt-capture-area">
+            <div class="center">
+                <h1>ROLAND'S</h1>
+                <p>EST. 1994<br>Premium Steak House</p>
+                <p>123 Culinary Hub, Main St.<br>Tel: (02) 8123-4567</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="info-row">
+                <span>ORDER #</span>
+                <span id="order-num" style="font-weight: bold;"></span>
+            </div>
+            <div class="info-row">
+                <span>TABLE</span>
+                <span id="table-id" style="font-weight: bold;"></span>
+            </div>
+            <div class="info-row">
+                <span>CUSTOMER</span>
+                <span id="customer-name"></span>
+            </div>
+            <div class="info-row">
+                <span>DATE</span>
+                <span id="date-now"></span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div style="font-weight: bold; margin-bottom: 10px;">ITEM DESCRIPTION</div>
+            <ul class="order-list" id="order-items-list">
+                <!-- Javascript will inject items -->
+            </ul>
+
+            <div class="divider"></div>
+
+            <div class="total-row">
+                <span>AMOUNT PAID</span>
+                <span>PHP <span id="total-amount"></span></span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="center" style="margin-top: 20px;">
+                <p>Thank you for dining with us!<br>Please present this receipt.</p>
+                
+                <!-- POS Scannable QR CODE -->
+                <div id="qrcode-container" style="margin-top: 25px; display: flex; justify-content: center;">
+                    <div id="qrcode"></div>
+                </div>
+                <p style="font-size: 10px; color: #94a3b8; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px;">Scan to Verify Order</p>
+            </div>
+        </div>
+
+        <div class="btn-area">
+            <button class="print-btn" onclick="window.print()">🖨️ PRINT RECEIPT</button>
+            <button class="print-btn" style="background:#334155;" onclick="downloadReceiptAsPhoto()">📥 DOWNLOAD RECEIPT</button>
+            <button class="home-btn" onclick="window.location.href='index.html'">RETURN HOME</button>
+        </div>
+    </div>
+
+    <script>
+        function downloadReceiptAsPhoto() {
+            const wrapper = document.querySelector('.receipt-wrapper');
+            const paper = document.getElementById('receipt-capture-area');
+            const btnArea = document.querySelector('.btn-area');
+
+            if (!paper) return;
+
+            const reservationNumber = localStorage.getItem('reservationNumber') || 'TBD';
+            
+            wrapper.style.filter = 'none'; // Remove wrapper filter to prevent buggy html2canvas rendering
+            btnArea.style.display = 'none'; // Hide buttons
+
+            html2canvas(paper, {
+                backgroundColor: '#ffffff',
+                scale: 4, // Increased scale for super sharp image quality
+                useCORS: true, // Prevents custom font rendering issues
+                logging: false
+             }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `receipt-${reservationNumber}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                wrapper.style.filter = ''; 
+                btnArea.style.display = '';
+             }).catch(() => {
+                wrapper.style.filter = ''; 
+                btnArea.style.display = '';
+                superModal({ title: 'Download Error 📥', message: 'Could not save the receipt photo. Please try again.' });
+             });
+        }
+
+        // Load from URL param if available, otherwise fallback to temporary localStorage keys
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlRes = urlParams.get('res');
+        
+        let name = localStorage.getItem('customerName') || 'Valued Guest';
+        let table = localStorage.getItem('bookedTable') || 'TBD';
+        let total = localStorage.getItem('totalBill') || '0';
+        let orders = localStorage.getItem('orderSummary') || 'No items selected';
+        let reservationNumber = localStorage.getItem('reservationNumber') || 'TBD';
+        let arrivalDisplay = localStorage.getItem('arrivalDateTimeDisplay') || new Date().toLocaleString();
+
+        if (urlRes) {
+            const hist = JSON.parse(localStorage.getItem('reservationHistory') || '[]');
+            const myRes = hist.find(r => r.reservationNumber === urlRes);
+            if (myRes) {
+                name = myRes.customerName || 'Valued Guest';
+                table = myRes.bookedTable || 'TBD';
+                total = myRes.paymentAmount || '0';
+                orders = myRes.orderSummary || 'No items selected';
+                reservationNumber = myRes.reservationNumber;
+                arrivalDisplay = myRes.arrivalDateTimeDisplay || new Date().toLocaleString();
+            }
+        }
+
+        // Fill receipt
+        document.getElementById('order-num').textContent = reservationNumber;
+        document.getElementById('customer-name').textContent = name;
+        document.getElementById('table-id').textContent = table;
+        document.getElementById('total-amount').textContent = Number(total).toLocaleString();
+        document.getElementById('date-now').textContent = arrivalDisplay;
+
+        // Fill order items
+        const list = document.getElementById('order-items-list');
+        orders.split(', ').forEach(item => {
+            if (item) {
+                const li = document.createElement('li');
+                li.className = 'order-item';
+                li.innerHTML = `<span>${item}</span> <span>(Paid)</span>`;
+                list.appendChild(li);
+            }
+        });
+
+        // Initialize QR Code
+        new QRCode(document.getElementById("qrcode"), {
+            text: reservationNumber,
+            width: 120,
+            height: 120,
+            colorDark: "#1e293b",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    </script>
+</body>
+
+</html>

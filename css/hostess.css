@@ -1,0 +1,39 @@
+body { font-family: 'Roboto', sans-serif; background: #f8fafc; margin: 0; min-height: 100vh; }
+header { background: white; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+.brand { font-family: 'Playfair Display', serif; font-size: 24px; color: #1b5e20; font-weight: 700; text-transform: uppercase; }
+.clock { font-size: 18px; font-weight: 600; color: #64748b; }
+
+.container { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
+
+.legend { display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
+.legend-item { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; text-transform: uppercase; color: #475569; }
+.dot { width: 16px; height: 16px; border-radius: 50%; }
+.dot-available { background: #4ade80; }
+.dot-seated { background: #ef4444; }
+.dot-cleaning { background: #3b82f6; }
+.dot-reserved { background: #f59e0b; }
+
+.floor-plan { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+
+.table-card { background: white; border: 3px solid #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.05); user-select: none; position: relative; overflow: hidden; }
+.table-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+
+.table-name { font-size: 22px; font-weight: 800; color: #334155; margin-bottom: 8px; }
+.table-status { font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+.table-meta { margin-top: 10px; font-size: 13px; color: #64748b; font-weight: 500; min-height: 16px; }
+
+/* Status Colors */
+.card-available { border-color: #4ade80; background: #f0fdf4; }
+.card-available .table-status { color: #166534; }
+
+.card-seated { border-color: #ef4444; background: #fef2f2; }
+.card-seated .table-status { color: #991b1b; }
+
+.card-cleaning { border-color: #3b82f6; background: #eff6ff; }
+.card-cleaning .table-status { color: #1e40af; }
+
+.card-reserved { border-color: #f59e0b; background: #fffbeb; }
+.card-reserved .table-status { color: #b45309; }
+
+.hostess-hint { text-align: center; color: #64748b; margin-top: -10px; margin-bottom: 25px; font-size: 14px; }
+
